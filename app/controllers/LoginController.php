@@ -24,6 +24,7 @@ class LoginController extends Controller{
 		}
 
 		// Redirect depending on role
+		// NEW STUFF
 		redirect(PATH);
 	}
 
