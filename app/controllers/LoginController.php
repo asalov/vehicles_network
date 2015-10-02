@@ -32,4 +32,8 @@ class LoginController extends Controller{
 
 		redirect(PATH . 'login');
 	}
+
+	public function testMethod(){
+		// Test
+	}
 }
