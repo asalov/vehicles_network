@@ -24,7 +24,6 @@ class LoginController extends Controller{
 		}
 
 		// Redirect depending on role
-		// NEW COMMENT ADDED FOR TESTING GIT!!!!
 		redirect(PATH);
 	}
 
