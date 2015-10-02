@@ -1,0 +1,4 @@
+RewriteEngine on
+
+RewriteRule ^$ /vehicles_network/public/ [L]
+RewriteRule (.*) /vehicles_network/public/$1 [L]
