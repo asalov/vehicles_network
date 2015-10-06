@@ -2,15 +2,13 @@
 
 use \Scheb\YahooFinanceApi\ApiClient as YahooFinanceClient;
 
-//comments
-
 class LoginController extends Controller{
 	private $authModel;
 
 	public function __construct(){
 		parent::__construct();
 
-		$this->authModel = $this->loadModel('auth', false)->init();
+		$this->authModel = $this->loadModel('auth')->init();
 	}
 
 	public function index(){
@@ -27,8 +25,12 @@ class LoginController extends Controller{
 			$this->view->render('login/index');
 		}
 
+		var_dump($user);
+
+		$this->view->render('home/index');
+		
 		// Redirect depending on the role of the user
-		redirect(PATH);
+		// redirect(PATH);
 	}
 
 	public function logout(){

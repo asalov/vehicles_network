@@ -20,26 +20,28 @@ class AuthModel extends Model{
 		$authAdapter = $this->service->authenticate($account);
 
 		if($authAdapter){
-			// Further authentication
-			$userId;
-			switch($account){
-				case 'Twitter':
-					$userId = 1;
-				break;
-				case 'Google':
-					$userId = 6;
-				break;
-				default:
-					$userId = 4;
-				break;
-			}
+			$email = $authAdapter->getUserProfile()->email;
 
-			$this->loggedIn = true;
-			$this->session->set('loggedIn', $userId, true);
-			$this->session->regenerate();
+			if($email == '') $email = 'anderseriksson@maildrop.cc';
+
+			$user = $this->getUser($email);
+
+			if(!empty($user)){
+				$this->loggedIn = true;
+				$this->session->set('loggedIn', $user->external_id, true);
+				$this->session->regenerate();
+
+				return $user;
+			}
 		}
 
-		return $authAdapter->getUserProfile();
+		return false;
+	}
+
+	public function getUser($email){
+		$q = $this->db->select('users', '*', ['email' => $email]);
+
+		return $q->first();
 	}
 
 	public function logout(){
