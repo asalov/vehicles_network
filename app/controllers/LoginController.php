@@ -26,6 +26,7 @@ class LoginController extends Controller{
 		}
 
 		// Redirect depending on the role of the user
+		// New test comment I just made!!!
 		redirect(PATH);
 	}
 
