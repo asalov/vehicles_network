@@ -1,5 +1,5 @@
 {
     "require": {
-        "hybridauth/hybridauth": "^2.5"
+        "scheb/yahoo-finance-api": "^1.2"
     }
 }

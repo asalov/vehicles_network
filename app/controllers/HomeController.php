@@ -15,12 +15,8 @@ class HomeController extends Controller{
 		$session = new Session;
 		$api = new VehiclesAPI;
 
-		$userData = $api->get('user', $session->get('loggedIn'));
-		$user = $userData->idUser;
-
-		$roleData = $api->get('role', $user->Role_idRole2);
-
-		$role = $roleData->idRole;
+		$user = $api->get('user', $session->get('loggedIn'))->data('idUser');
+		$role = $api->get('role', $user->Role_idRole2)->data('idRole');
 
 		$this->view->set('name', $user->username);
 		$this->view->set('role', $role->name);

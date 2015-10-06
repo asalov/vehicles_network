@@ -16,3 +16,5 @@
 	// Default controller settings
 	define('DEFAULT_CONTROLLER', 'home');
 	define('DEFAULT_METHOD', 'index');
+
+	define('YOUTUBE_API_KEY', 'AIzaSyCi4iOqeyFl4phHKmbSXbGudOAk1Yc-kAg');

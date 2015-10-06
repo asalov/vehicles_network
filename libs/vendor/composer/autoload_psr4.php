@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Scheb\\YahooFinanceApi\\' => array($vendorDir . '/scheb/yahoo-finance-api'),
 );
