@@ -12,6 +12,7 @@ class HomeController extends Controller{
 	}
 
 	public function index(){
+		// Another test comment
 		$session = new Session;
 		$api = new VehiclesAPI;
 
