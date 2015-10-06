@@ -2,6 +2,8 @@
 
 use \Scheb\YahooFinanceApi\ApiClient as YahooFinanceClient;
 
+//comments
+
 class LoginController extends Controller{
 	private $authModel;
 

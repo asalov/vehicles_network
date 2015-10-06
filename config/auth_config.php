@@ -2,15 +2,15 @@
 
 return [
 	// 'base_url' the url that point to HybridAuth Endpoint (where index.php and config.php are found)
-	'base_url' => 'http://localhost/vehicles_network/login/authenticate',
+	'base_url' => 'http://localhost:8080/aasig2/login/authenticate',
 
 	'providers' => [
 		// Google
 	    'Google' => [ // 'id' is your google client id
 	       'enabled' => true,
 	       'keys' => [ 
-	       		'id' => '256376790807-93foviosp1ol333ls5pggfhp2j8vjr7m.apps.googleusercontent.com', 
-	       		'secret' => '6BpIjI8XT_vVOqgHkplHR22x'
+	       		'id' => '899871457691-lt2t37dk7m97chpoeunl7i0j3f070f9d.apps.googleusercontent.com', 
+	       		'secret' => 'Oac7ZcQXKRpRRLokZA6AF4XI'
 	       	],
 	    ],
 
@@ -18,8 +18,8 @@ return [
 	    'Facebook' => [ // 'id' is your facebook application id
 	       'enabled' => true,
 	       'keys' => [ 
-	       		'id' => '1036250943094460', 
-	       		'secret' => 'd76c8b3ed675a6f91b00c625f3b71c30' 
+	       		'id' => '855940797834635', 
+	       		'secret' => 'a46f17e1cb60bc31cdb18cf86af2423d' 
 	       	],
 	       'scope' => 'public_profile',
 	       'display' => 'page'
@@ -29,8 +29,8 @@ return [
 	    'Twitter' => [ // 'key' is your twitter application consumer key
 	       'enabled' => true,
 	       'keys' => [
-	       		'key' => '4ZmsANguV99xi6FQ3T7yOcuey', 
-	       		'secret' => 'PlmXVXbY5VyQfCnWGNKxHvKzowcUnRUiNMF4nFpToPIkylFXjg' 
+	       		'key' => 'yqmi9fEfoRzefMrolgtzgCVPc', 
+	       		'secret' => 'r40FG5GOcqj0LB8HkiwWGSLYF0OYzoQMkJIX27J17HpDcsTqD3' 
 	       	],
 	    ],
 

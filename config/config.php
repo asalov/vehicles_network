@@ -2,7 +2,7 @@
 	// Global vars
 	define('ROOT', dirname(dirname(__FILE__)));
 	define('DS', DIRECTORY_SEPARATOR);
-	define('PATH', 'http://localhost/vehicles_network/public/');
+	define('PATH', 'http://localhost:8080/aasig2/public/');
 	define('PROJECT_NAME', 'Social Login');
 	define('MAIN_TITLE', 'Vehicles Network');
 	
