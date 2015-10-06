@@ -25,7 +25,7 @@ class LoginController extends Controller{
 			$this->view->render('login/index');
 		}
 
-		// Redirect depending on role
+		// Redirect depending on the role of the user
 		redirect(PATH);
 	}
 
