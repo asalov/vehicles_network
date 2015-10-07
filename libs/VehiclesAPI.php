@@ -19,7 +19,7 @@ class VehiclesAPI{
 	}
 
 	private function retrieveData($url){
-		$url = $this->hostUrl . 'index.php?table=' . $url;
+		$url = $this->hostUrl . 'getData.php?table=' . $url;
 
 		$this->data = simplexml_load_string(file_get_contents($url));
 	}

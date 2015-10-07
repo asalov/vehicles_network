@@ -1,12 +1,12 @@
 <?php
 
-use \Scheb\YahooFinanceApi\ApiClient as YahooFinanceClient;
-
 class VehicleModel extends Model{
 	private $api;
 
-	public function __construct(){
+	public function init(){
 		$this->api = new VehiclesAPI;
+
+		return $this;
 	}
 
 	public function getVehicles(){
@@ -81,44 +81,5 @@ class VehicleModel extends Model{
 		$q = $this->db->select('users', ['first_name', 'last_name'], ['external_id' => $id]);
 
 		return $q->first();
-	}
-
-	// Should this be here?
-	public function showVideoRecommendations(){
-		$model = $this->api->get('bitacora')->data('idBitacora')->Vehicle_Vehicle_model_idvehicle_model;
-		$vehicleName = $this->api->get('vehicle_model', $model)->data('idVehicle_model')->name;
-
-		$googleAPI = new Google_Client;
-		$googleAPI->setDeveloperKey(YOUTUBE_API_KEY);
-
-		$youtube = new Google_Service_YouTube($googleAPI);
-
-		$searchResults = $youtube->search->listSearch('id, snippet', ['q' => $vehicleName]);
-		
-		$videos = '';
-		foreach($searchResults['items'] as $result){
-			switch ($result['id']['kind']) {
-        		case 'youtube#video':
-          			$videos .= sprintf('<li>%s (%s)</li>',
-              		$result['snippet']['title'], $result['id']['videoId']);
-          		break;
-		        // case 'youtube#channel':
-		        //   $channels .= sprintf('<li>%s (%s)</li>',
-		        //       $result['snippet']['title'], $result['id']['channelId']);
-		        //   break;
-		        // case 'youtube#playlist':
-		        //   $playlists .= sprintf('<li>%s (%s)</li>',
-		        //       $result['snippet']['title'], $result['id']['playlistId']);
-		        //   break;
-     		}
-		}
-
-		return $videos;
-	}
-
-	public function getStockData(){	
-		$yahoo = new YahooFinanceClient;
-
-		return $yahoo->getHistoricalData('VOLVY', new DateTime('2015-09-01'), new DateTime);
 	}
 }

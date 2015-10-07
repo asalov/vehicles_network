@@ -2,12 +2,12 @@
 
 class AuthModel extends Model{
 	private $session;
-	private $loggedIn;
+	private $user;
 	private $service;
 
 	public function init(){
 		$this->session = new Session;
-		$this->loggedIn = $this->session->get('loggedIn');
+		$this->user = new User($this->session, $this->db);
 		$this->service = new Hybrid_Auth('../config/auth_config.php');
 
 		return $this;
@@ -25,43 +25,27 @@ class AuthModel extends Model{
 			// Temporary solution for Twitter
 			if($email == '') $email = 'anderseriksson@maildrop.cc';
 
-			$user = $this->getUser($email);
-
-			if($user !== null){
-				$this->loggedIn = true;
-				$this->session->set('loggedIn', $user->id, true);
-				$this->session->regenerate();
-
-				return $user;
-			}
+			return $this->user->login($email);
 		}
 
 		return null;
 	}
 
-	private function getUser($email){
-		$sql = "SELECT users.external_id AS 'id', roles.name AS 'role' 
-				FROM users, roles WHERE users.role_id = roles.id AND email = :email";
-		$q = $this->db->query($sql, ['email' => $email]);
-
-		return $q->first();
-	}
-
 	public function logout(){
-		$this->session->delete('loggedIn');
-		$this->session->destroy();
-
-		$this->loggedIn = false;
+		$this->user->logout();
 
 		// Working?
 		$this->service->logoutAllProviders();
 	}
 
-
 	public function isLoggedIn(){
-		if($this->session->timeout('loggedIn')) $this->loggedIn = false;
-		
-		return $this->loggedIn;
+		return $this->user->isLoggedIn();
+	}
+
+	public function getUserData($field = null){
+		if($field == null) return $this->user->data();
+
+		return $this->user->get($field);
 	}
 
 	public function checkPermissions($userId, $permission){

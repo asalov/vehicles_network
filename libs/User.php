@@ -3,35 +3,30 @@
 class User{
 	private $session;
 	private $db;
-	private $hash;
 	private $data = [];
 	private $loggedIn;
 	
-	public function __construct(Session $session, DB $db, Hash $hash){
+	public function __construct(Session $session, DB $db){
 		$this->session = $session;
 		$this->db = $db;
-		$this->hash = $hash;
 		
 		$this->loggedIn = $this->find($this->session->get('loggedIn'));
 	}
 
-	public function login($username, $password){
-		$query = $this->db->select('users', '*', ['username' => $username]);
+	public function login($email){
+		$sql = "SELECT users.external_id AS 'id', roles.name AS 'role' 
+				FROM users, roles WHERE users.role_id = roles.id AND email = :email";
+		$q = $this->db->query($sql, ['email' => $email]);
 
-		if($query->rows() === 1){
-			$user = $query->first();
+		$user = $q->first();
 
-			if($this->hash->verifyPass($password, $user->password)){
-				$this->loggedIn = true;
-
-				$this->session->set('loggedIn', $user->id, true);
-				$this->session->regenerate();
-
-				$this->data = $user;		
-			}
+		if($user !== null){
+			$this->loggedIn = true;
+			$this->session->set('loggedIn', $user->id, true);
+			$this->session->regenerate();
 		}
 
-		return $this->loggedIn;
+		return $user;
 	}
 
 	public function logout(){
@@ -43,7 +38,7 @@ class User{
 	
 	// Find user by id
 	private function find($id){
-		$query = $this->db->select('users', '*', ['id' => $id]);
+		$query = $this->db->select('users', '*', ['external_id' => $id]);
 
 		if($query->rows() === 1){
 			$this->data = $query->first();

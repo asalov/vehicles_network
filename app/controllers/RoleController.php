@@ -1,8 +1,10 @@
 <?php
 
 class RoleController extends Controller{
-	protected $authModel;
-	protected $vehicleModel;
+	private $authModel;
+	private $vehicleModel;
+	private $userModel;
+	private $userId;
 
 	public function __construct(){
 		parent::__construct();
@@ -11,7 +13,10 @@ class RoleController extends Controller{
 
 		if(!$this->authModel->isLoggedIn()) redirect(PATH . 'login');
 
-		$this->vehicleModel = $this->loadModel('vehicle');
+		$this->vehicleModel = $this->loadModel('vehicle')->init();
+		$this->userModel = $this->loadModel('user')->init();
+
+		$this->userId = $this->authModel->getUserData('external_id');
 
 		$this->view->set('userLogged', true);
 	}
@@ -23,20 +28,17 @@ class RoleController extends Controller{
 	public function driver(){
 		// DRIVER
 		// if the user is assigned a heavy vehicle driver role, then this user gets
-		// recommendations to YouTube videos regarding the type of heavy
-		// vehicle that the driver has been assigned
-		// get vehicles connected to driver => Bitacora -> Vehicle_model -> name
+		// recommendations to YouTube videos regarding the type of heavy vehicle that the driver has been assigned
 
-		$this->view->set('recommendations', $this->vehicleModel->showVideoRecommendations());
+		$this->view->set('recommendations', $this->userModel->showVideoRecommendations($this->userId));
 		$this->view->render('home/recommendations');
 	}
 
 	public function analyst(){
 		// ANALYST
 		// if the user is assigned an analyst role, then the user gets a list of the vehicles
-		// and information about their usage (times, user assigned, fuel
-		// consumption, reported issues)
-		// get all vehicles + info 
+		// and information about their usage (times, user assigned, fuel consumption, reported issues)
+		// get all vehicles + info
 		// Vehicle -> Logs -> Status_type, Manual_Issues? + more?
 
 		$this->view->set('vehicles', $this->vehicleModel->getVehicles());
@@ -50,7 +52,7 @@ class RoleController extends Controller{
 		// historical stock market value of his/her company in a CSV file.
 		// get director company + stock market API
 
-		$this->view->set('stockData', $this->vehicleModel->getStockData());
+		$this->view->set('stockData', $this->userModel->getStockData($this->userId));
 
 		$this->view->render('home/stock');	
 	}
