@@ -22,24 +22,27 @@ class AuthModel extends Model{
 		if($authAdapter){
 			$email = $authAdapter->getUserProfile()->email;
 
+			// Temporary solution for Twitter
 			if($email == '') $email = 'anderseriksson@maildrop.cc';
 
 			$user = $this->getUser($email);
 
-			if(!empty($user)){
+			if($user !== null){
 				$this->loggedIn = true;
-				$this->session->set('loggedIn', $user->external_id, true);
+				$this->session->set('loggedIn', $user->id, true);
 				$this->session->regenerate();
 
 				return $user;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
-	public function getUser($email){
-		$q = $this->db->select('users', '*', ['email' => $email]);
+	private function getUser($email){
+		$sql = "SELECT users.external_id AS 'id', roles.name AS 'role' 
+				FROM users, roles WHERE users.role_id = roles.id AND email = :email";
+		$q = $this->db->query($sql, ['email' => $email]);
 
 		return $q->first();
 	}
@@ -59,5 +62,9 @@ class AuthModel extends Model{
 		if($this->session->timeout('loggedIn')) $this->loggedIn = false;
 		
 		return $this->loggedIn;
+	}
+
+	public function checkPermissions($userId, $permission){
+		
 	}
 }

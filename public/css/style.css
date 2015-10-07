@@ -2,3 +2,12 @@ body{
 	background:#CAF0EC;
 	font: 150% 'Open Sans', sans-serif;
 }
+
+ul{
+	list-style-type: none;
+	padding:0;
+}
+
+.social-login{
+	font-size:2.5em;
+}
