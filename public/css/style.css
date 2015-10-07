@@ -1,5 +1,5 @@
 body{
-	background:#CAF0EC;
+	background:#E9F4F5;
 	font: 150% 'Open Sans', sans-serif;
 }
 
@@ -8,6 +8,14 @@ ul{
 	padding:0;
 }
 
+footer{
+	text-align: center;
+}
+
 .social-login{
 	font-size:2.5em;
+}
+
+.social-login li{
+	display:inline-block;
 }

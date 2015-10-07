@@ -85,3 +85,18 @@ function regError($msg){
 
     redirect(404);
 }
+
+// Encode data into JSON format
+function toJson($data){
+    return json_encode($data);
+}
+
+// Decode data from a JSON format into PHP object/array
+function fromJson($data, $toArray = false){
+    return json_decode($data, $toArray);
+}
+
+// Get XML node as string
+function getStr($data){
+    return (string) $data;
+}

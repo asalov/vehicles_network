@@ -14,7 +14,7 @@
 	define('DB_PASS', '');
 
 	// Default controller settings
-	define('DEFAULT_CONTROLLER', 'home');
+	define('DEFAULT_CONTROLLER', 'role');
 	define('DEFAULT_METHOD', 'index');
 
 	define('YOUTUBE_API_KEY', 'AIzaSyCi4iOqeyFl4phHKmbSXbGudOAk1Yc-kAg');
