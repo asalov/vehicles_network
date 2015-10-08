@@ -12,7 +12,12 @@ class VehicleModel extends Model{
 	public function getVehicles(){
 		return $this->api->get('vehicle')->data('idvehicle');
 	}
+	
 
+	// information about their usage (times, user assigned, fuel consumption, reported issues)
+	// get all vehicles + info
+	// Vehicle -> Logs -> Status_type, Manual_Issues? + more?
+	
 	public function getVehicleInfo($modelId, $organizationId){
 		$model = $this->api->get('vehicle_model', $modelId)->data('idVehicle_model');
 		$organization = $this->api->get('organization', $organizationId)->data('idOrganization');

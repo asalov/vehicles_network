@@ -87,6 +87,31 @@ $(document).ready(function(){
 			$link.hide();
 		}
 	});
+	
+	// Show extra options
+	$('#show_extra').click(function(){
+		$(this).parents('.checkbox').next().toggleClass('hidden');
+	});
+
+	// Get stock data
+	$('#get_stock_data').click(function(e){
+		e.preventDefault();
+
+		var $optionsForm = $(this).parent().prev();
+		var $stockName = $optionsForm.find('#stock_name').val();
+		var $startDate = $optionsForm.find('#start_date').val().trim();
+		var $endDate = $optionsForm.find('#end_date').val().trim();
+		var $interval = $optionsForm.find('#interval').val().trim();
+
+		var options = {};
+
+		if($startDate.length > 0) options.start_date = $startDate;
+		if($endDate.length > 0) options.end_date = $endDate;
+		if($interval.length > 0) options.interval = $interval;
+		
+		// getStockData($stockName, options);
+		window.location = getStockData($stockName, options);
+	});
 });
 
 function ajax(params, callback){
@@ -100,4 +125,34 @@ function ajax(params, callback){
 	}).done(function(data){
 		callback(data);
 	});	
+}
+
+function getStockData(stockName, options){
+	var url = 'http://ichart.finance.yahoo.com/table.csv?s=' + stockName;
+
+	if(options.start_date !== undefined){
+		var startDate = new Date(options.start_date);
+
+		// from 15/3/2000 until 31/1/2010.
+
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2&b=15
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2&b=1&c=2000 
+
+		url += '&a=' + startDate.getMonth() + '&b=' + startDate.getDate() + '&c=' + startDate.getFullYear();
+	}
+
+	if(options.end_date !== undefined){
+		var endDate = new Date(options.end_date);
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0&e=31
+		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0&e=31&f=2010
+
+		url += '&d=' + endDate.getMonth() + '&e=' + endDate.getDate() + '&f=' + endDate.getFullYear(); 
+	}
+
+	if(options.interval !== undefined) url += '&g=' + options.interval;
+
+	console.log(url);
+	return url;
 }

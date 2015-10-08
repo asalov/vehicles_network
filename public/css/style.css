@@ -19,3 +19,11 @@ footer{
 .social-login li{
 	display:inline-block;
 }
+
+.search-query{
+	font-weight: bold;
+}
+
+.extra_options{
+	transition: all 1s;
+}

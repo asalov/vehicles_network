@@ -1,7 +1,5 @@
 <?php
 
-use \Scheb\YahooFinanceApi\ApiClient as YahooFinanceClient;
-
 class UserModel extends Model{
 	private $api;
 
@@ -11,9 +9,9 @@ class UserModel extends Model{
 		return $this;
 	}
 
-	public function showVideoRecommendations($userId){
+	public function showVideoRecommendations($userId, $resultsPageToken = null){
 		// Review this!
-
+		// if the user is assigned a heavy vehicle driver role
 		// get vehicles connected to driver => Bitacora -> Vehicle_model -> name
 		$bitacora = $this->api->get('bitacora')->data('idBitacora');
 
@@ -28,44 +26,37 @@ class UserModel extends Model{
 		}
 
 		if($userVehicle !== null){
-			$vehicleModel = $this->api->get('vehicle_model', $userVehicle)->data('idVehicle_model');
+			$vehicleModel = getStr($this->api->get('vehicle_model', $userVehicle)->data('idVehicle_model')->name);
 			$googleAPI = new Google_Client;
 			$googleAPI->setDeveloperKey(YOUTUBE_API_KEY);
 
 			$youtube = new Google_Service_YouTube($googleAPI);
 
-			$searchResults = $youtube->search->listSearch('id, snippet', ['q' => getStr($vehicleModel->name)]);
-			
-			$videos = '';
-			foreach($searchResults['items'] as $result){
-				switch ($result['id']['kind']) {
-	        		case 'youtube#video':
-	          			$videos .= sprintf('<li>%s (%s)</li>',
-	              		$result['snippet']['title'], $result['id']['videoId']);
-	          		break;
-			        // case 'youtube#channel':
-			        //   $channels .= sprintf('<li>%s (%s)</li>',
-			        //       $result['snippet']['title'], $result['id']['channelId']);
-			        //   break;
-			        // case 'youtube#playlist':
-			        //   $playlists .= sprintf('<li>%s (%s)</li>',
-			        //       $result['snippet']['title'], $result['id']['playlistId']);
-			        //   break;
-	     		}
-			}
+			$searchOptions = [
+				'q' => $vehicleModel,
+				'maxResults' => 10,
+				'type' => 'video'
+			];
 
-			return $videos;
+			if($resultsPageToken !== null) $searchOptions['pageToken'] = $resultsPageToken;
+
+			$searchResults = $youtube->search->listSearch('id, snippet', $searchOptions);
+			$searchResults->searchQuery = $vehicleModel; // Add query string to output
+
+			return $searchResults;
 		}
 
 		return null;
 	}
 
-	public function getStockData($userId){	
-		$yahoo = new YahooFinanceClient;
+	public function getCompanyStockName($userId){
+		// historical stock market value of company in a CSV file.
+
+		// http://ichart.finance.yahoo.com/table.csv?s=$organization->stockName
 
 		$organizationId = $this->api->get('user', $userId)->data('idUser')->Organization_idOrganization;
 		$company = $this->api->get('organization', $organizationId)->data('idOrganization');
 
-		return $yahoo->getHistoricalData($company->stockName, new DateTime('2015-09-01'), new DateTime);
+		return $company->stockName;
 	}	
 }

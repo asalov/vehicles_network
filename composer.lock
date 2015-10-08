@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6bc016738fdcd0481ff99b2d53bbd944",
-    "content-hash": "487662493c46dc449b7e3d3f9a2f71df",
+    "hash": "4a0dcb77abe6195b32b18e6062319ac8",
+    "content-hash": "e26b2632ad1d8610614124aa84f0f382",
     "packages": [
         {
             "name": "google/apiclient",
@@ -101,49 +101,6 @@
                 "yahoo"
             ],
             "time": "2015-09-07 15:07:06"
-        },
-        {
-            "name": "scheb/yahoo-finance-api",
-            "version": "v1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/scheb/yahoo-finance-api.git",
-                "reference": "950a90d1be65a1fdd5a3a9182eb1c0a427ecb79d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/scheb/yahoo-finance-api/zipball/950a90d1be65a1fdd5a3a9182eb1c0a427ecb79d",
-                "reference": "950a90d1be65a1fdd5a3a9182eb1c0a427ecb79d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Scheb\\YahooFinanceApi\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Scheb",
-                    "email": "me@christianscheb.de"
-                }
-            ],
-            "description": "PHP library for accessing Yahoo Finance data",
-            "homepage": "https://github.com/scheb/yahoo-finance-api",
-            "keywords": [
-                "api",
-                "finance",
-                "stock",
-                "yahoo"
-            ],
-            "time": "2015-09-29 18:37:36"
         }
     ],
     "packages-dev": [],
