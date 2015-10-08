@@ -29,8 +29,9 @@ class RoleController extends Controller{
 		// DRIVER
 		// if the user is assigned a heavy vehicle driver role, then this user gets
 		// recommendations to YouTube videos regarding the type of heavy vehicle that the driver has been assigned
-
+	
 		$this->view->set('recommendations', $this->userModel->showVideoRecommendations($this->userId));
+
 		$this->view->render('home/recommendations');
 	}
 
@@ -52,7 +53,11 @@ class RoleController extends Controller{
 		// historical stock market value of his/her company in a CSV file.
 		// get director company + stock market API
 
-		$this->view->set('stockData', $this->userModel->getStockData($this->userId));
+		if($this->authModel->checkPermissions('access_stock_data')){
+			$this->view->set('stockData', $this->userModel->getStockData($this->userId));
+		}else{
+			$this->view->set('permissionRestriction', true);
+		}
 
 		$this->view->render('home/stock');	
 	}

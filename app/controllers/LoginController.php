@@ -18,9 +18,6 @@ class LoginController extends Controller{
 			$account = ucfirst(strtolower($loginOption));
 			$user = $this->authModel->login($account);
 
-			// var_dump($user);
-			// $this->view->render('home/index');
-
 			if($user !== null){
 				// Redirect depending on user role
 				redirect(PATH . 'role/' . strtolower($user->role));
@@ -43,7 +40,8 @@ class LoginController extends Controller{
 		redirect(PATH . 'login');
 	}
 
+	// Show privacy policy (needed to get email from Twitter)
 	public function privacy(){
-		echo 'Terms and conditions';
+		$this->view->render('login/privacy');
 	}
 }

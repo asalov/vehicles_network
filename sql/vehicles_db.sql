@@ -1,3 +1,4 @@
+/********** DATABASE STRUCTURE **********/
 CREATE DATABASE vehicles_db;
 
 USE vehicles_db;
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS role_permissions(
 	FOREIGN KEY(perm_id) REFERENCES permissions(id)
 );
 
-
+/********** DEFAULT DATA **********/
 INSERT INTO roles(name, external_id) VALUES
 (1, 'Driver', 2),
 (2, 'Analyst', 5),
@@ -39,12 +40,9 @@ INSERT INTO roles(name, external_id) VALUES
 
 INSERT INTO users(role_id, first_name, last_name, email, external_id) VALUES
 (1, 'Peter', 'Svensson', 'petersvensson@mail.bg', 4),
-(2, 'Anders', 'Eriksson', 'anderseriksson@maildrop.cc', 6),
+(2, 'Anders', 'Eriksson', 'anderseriksson@mailinator.com', 6),
 (3, 'Mattias', 'Berg', 'mattiasberg82@gmail.com', 1);
 
-INSERT INTO permissions(id, name) VALUES
-(1, 'view_vehicle_usage')
-(2, 'access_stock_data')
-(3, 'view_videos');
+INSERT INTO permissions(id, name) VALUES (1, 'access_stock_data');
 
-INSERT INTO role_permissions(role_id, perm_id) VALUES();
+INSERT INTO role_permissions(role_id, perm_id) VALUES(3, 1);

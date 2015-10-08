@@ -19,14 +19,7 @@ class AuthModel extends Model{
 
 		$authAdapter = $this->service->authenticate($account);
 
-		if($authAdapter){
-			$email = $authAdapter->getUserProfile()->email;
-
-			// Temporary solution for Twitter
-			if($email == '') $email = 'anderseriksson@maildrop.cc';
-
-			return $this->user->login($email);
-		}
+		if($authAdapter) return $this->user->login($authAdapter->getUserProfile()->email);
 
 		return null;
 	}
@@ -48,7 +41,8 @@ class AuthModel extends Model{
 		return $this->user->get($field);
 	}
 
-	public function checkPermissions($userId, $permission){
-		
+	// Different name?
+	public function checkPermissions($permission){
+		return $this->user->hasPermission($permission);
 	}
 }

@@ -59,14 +59,14 @@ class User{
 	
 	// Check if a user has a certain permission
 	public function hasPermission($permisson){
-		$id = $this->get('id');
+		$id = $this->get('external_id');
 
-		$sql = "SELECT perm_value FROM user_perms, permissions 
-				WHERE permissions.id = user_perms.perm_id 
-				AND user_id = :id AND permission_name = :permission";
+		$sql = "SELECT perm_id FROM users, permissions, role_permissions
+				WHERE users.role_id = role_permissions.role_id
+				AND users.external_id = :id AND permissions.name = :permission";
 		$query = $this->db->query($sql, ['id' => $id, 'permission' => $permisson]);
 
-		return $query->first() === 1;
+		return $query->hasResults();
 	}
 
 	public function isLoggedIn(){

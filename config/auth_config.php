@@ -32,6 +32,7 @@ return [
 	       		'key' => '4ZmsANguV99xi6FQ3T7yOcuey', 
 	       		'secret' => 'PlmXVXbY5VyQfCnWGNKxHvKzowcUnRUiNMF4nFpToPIkylFXjg' 
 	       	],
+	       	'includeEmail' => true
 	    ],
 
 	],
