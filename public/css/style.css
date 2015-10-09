@@ -20,10 +20,6 @@ footer{
 	display:inline-block;
 }
 
-.search-query{
+.search-query, .label-span{
 	font-weight: bold;
-}
-
-.extra_options{
-	transition: all 1s;
 }

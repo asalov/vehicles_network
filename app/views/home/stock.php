@@ -3,6 +3,7 @@
 		if($this->get('accessGranted') == true):
 			if($this->get('stockName') !== null): ?>
 				<h1>Get historical stock data</h1>
+				<p><span class="label-span">Organization</span> <?php echo esc($this->get('companyName')); ?></p>
 				<div class="checkbox">
 					<label><input type="checkbox" id="show_extra">Show extra options</label>
 				</div>

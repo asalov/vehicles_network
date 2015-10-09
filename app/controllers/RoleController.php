@@ -35,8 +35,12 @@ class RoleController extends Controller{
 
 	public function director(){
 		if($this->authModel->checkPermissions('access_stock_data')){
-			$this->view->set('stockName', $this->userModel->getCompanyStockName($this->userId));
+			$company = $this->userModel->getCompany($this->userId);
+			
+			$this->view->set('companyName', $company->name);
+			$this->view->set('stockName', $company->stockName);
 			$this->view->set('accessGranted', true);
+			$this->view->set('showDatepicker', true);
 		}
 
 		$this->view->render('home/stock');	

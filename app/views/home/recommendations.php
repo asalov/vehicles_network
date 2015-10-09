@@ -1,7 +1,7 @@
 	<?php $searchResults = $this->get('recommendations'); ?>
 
-	<h1>Video recommendations for: <span class="search-query"><?php echo esc($searchResults->searchQuery); ?></span></h1>
 	<?php if($searchResults !== null): ?>
+	<h1>Video recommendations for: <span class="search-query"><?php echo esc($searchResults->searchQuery); ?></span></h1>
 		<ul class="list-group">
 		<?php foreach($this->get('recommendations') as $video): ?>
 		<li class="list-group-item">

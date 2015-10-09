@@ -17,8 +17,8 @@ $(document).ready(function(){
 			ajax('getExtraInfo/' + $modelId + '/' + $organizationId, function(data){
 				var $modelP = $('<p/>');
 				var $organizationP = $('<p/>');
-				var $modelLabel = $('<b>Model: </b>');
-				var $organizationLabel = $('<b>Organization: </b>');
+				var $modelLabel = $('<span>', { class: 'label-span', text: 'Model '});
+				var $organizationLabel = $('<span>', { class: 'label-span', text: 'Organization '});
 
 				$modelP.append($modelLabel);
 				$modelP.append(data.model);
@@ -38,9 +38,9 @@ $(document).ready(function(){
 					var $startTimeP = $('<p/>');
 					var $endTimeP = $('<p/>');
 					var $driverP = $('<p/>');
-					var $startTimeLabel = $('<b>Start time: </b>');
-					var $endTimeLabel = $('<b>End time: </b>');
-					var $driverLabel = $('<b>Driver: </b>');
+					var $startTimeLabel = $('<span>', { class: 'label-span', text: 'Start time '});
+					var $endTimeLabel = $('<span>', { class: 'label-span', text: 'End time '});
+					var $driverLabel = $('<span>', { class: 'label-span', text: 'Driver '});
 
 					$startTimeP.append($startTimeLabel);
 					$startTimeP.append(data.start_time);
@@ -65,8 +65,8 @@ $(document).ready(function(){
 
 					var $statusP = $('<p/>');
 					var $logUrlP = $('<p/>');
-					var $statusLabel = $('<b>Status: </b>');
-					var $logUrlLabel = $('<b>Log file: </b>');
+					var $statusLabel = $('<span>', { class: 'label-span', text: 'Status '});
+					var $logUrlLabel = $('<span>', { class: 'label-span', text: 'Log file '});
 					var $logUrl = $('<a>', { href: data.link, text: 'Log', target: '_blank'});
 
 					$statusP.append($statusLabel);
@@ -88,6 +88,17 @@ $(document).ready(function(){
 		}
 	});
 	
+	// Check if plugin is loaded
+	if(jQuery().datepicker !== undefined){
+		// Set up datepicker
+		var datepickerOptions = {
+			weekStart: 1
+		};
+
+		$('#start_date').datepicker(datepickerOptions);
+		$('#end_date').datepicker(datepickerOptions);		
+	}
+
 	// Show extra options
 	$('#show_extra').click(function(){
 		$(this).parents('.checkbox').next().toggleClass('hidden');
@@ -130,29 +141,22 @@ function ajax(params, callback){
 function getStockData(stockName, options){
 	var url = 'http://ichart.finance.yahoo.com/table.csv?s=' + stockName;
 
-	if(options.start_date !== undefined){
-		var startDate = new Date(options.start_date);
-
-		// from 15/3/2000 until 31/1/2010.
-
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2&b=15
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=2&b=1&c=2000 
-
-		url += '&a=' + startDate.getMonth() + '&b=' + startDate.getDate() + '&c=' + startDate.getFullYear();
-	}
-
-	if(options.end_date !== undefined){
-		var endDate = new Date(options.end_date);
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0&e=31
-		// http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0&e=31&f=2010
-
-		url += '&d=' + endDate.getMonth() + '&e=' + endDate.getDate() + '&f=' + endDate.getFullYear(); 
-	}
+	url = appendDateStr(url, options.start_date, ['a', 'b', 'c']);
+	url = appendDateStr(url, options.end_date, ['d', 'e', 'f']);
 
 	if(options.interval !== undefined) url += '&g=' + options.interval;
 
 	console.log(url);
+	return url;
+}
+
+function appendDateStr(url, dateOption, params){
+	if(dateOption !== undefined){
+		var date = new Date(dateOption);
+
+		url += '&' + params[0] + '=' + date.getMonth() + '&' + params[1] + '=' + 
+				date.getDate() + '&' + params[2] + '=' + date.getFullYear();
+	}
+
 	return url;
 }

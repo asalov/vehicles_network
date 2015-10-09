@@ -49,14 +49,11 @@ class UserModel extends Model{
 		return null;
 	}
 
-	public function getCompanyStockName($userId){
+	public function getCompany($userId){
 		// historical stock market value of company in a CSV file.
 
-		// http://ichart.finance.yahoo.com/table.csv?s=$organization->stockName
-
 		$organizationId = $this->api->get('user', $userId)->data('idUser')->Organization_idOrganization;
-		$company = $this->api->get('organization', $organizationId)->data('idOrganization');
-
-		return $company->stockName;
+		
+		return $this->api->get('organization', $organizationId)->data('idOrganization');
 	}	
 }
