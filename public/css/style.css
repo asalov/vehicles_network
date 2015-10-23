@@ -12,14 +12,102 @@ footer{
 	text-align: center;
 }
 
+.login-screen{
+	text-align: center;
+}
+
 .social-login{
 	font-size:2.5em;
 }
 
 .social-login li{
 	display:inline-block;
+	width:80px;
+}
+
+.as-fa-facebook{
+	color:#3b5998;
+}
+
+.as-fa-facebook:before{
+    content: "\f09a";
+}
+
+.as-fa-twitter{
+	color:#4099FF;
+}
+
+.as-fa-twitter:before {
+    content: "\f099";
+}
+
+.as-fa-google-plus{
+	color:#DC4E41;
+}
+
+.as-fa-google-plus:before {
+    content: "\f0d5";
+}
+
+.fa-spinner{
+	font-size:3em;
+	position:absolute;
+	top:50%;
+	left:50%;
+	width:40px;
+	height:40px;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 .search-query, .label-span{
 	font-weight: bold;
+}
+
+.video .list-group-item a:hover{
+	text-decoration: none;
+}
+
+.video .list-group-item h4{
+	color: #444;
+	font-size: 1.5em;
+}
+
+.video .desc{
+	color: #000;
+}
+
+.map-link{
+	margin-top:-30px;
+}
+
+#map{
+	width: 800px;
+	height: 600px;
+	margin: 10px auto auto;
+	border: 1px solid #999;
+}
+
+/*********** SVG ***********/
+.visualization svg{
+	background:#fff;
+}
+
+.visualization .line, .legend-item{
+	cursor:pointer;
+}
+
+.disabled{
+	fill:#aaa !important;
+}
+
+.axis path, .axis line{
+	fill:none;
+    shape-rendering: crispEdges;
+    stroke-width: 2;
+    stroke:#000;
+}
+
+.axis text{
+	font-size: 0.9em;
 }

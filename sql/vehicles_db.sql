@@ -32,8 +32,16 @@ CREATE TABLE IF NOT EXISTS role_permissions(
 	FOREIGN KEY(perm_id) REFERENCES permissions(id)
 );
 
+CREATE TABLE IF NOT EXISTS annotations(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	user_id INT NOT NULL,
+	content TEXT NOT NULL,
+	log_id INT NOT NULL,
+	FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 /********** DEFAULT DATA **********/
-INSERT INTO roles(name, external_id) VALUES
+INSERT INTO roles(id, name, external_id) VALUES
 (1, 'Driver', 2),
 (2, 'Analyst', 5),
 (3, 'Director', 9);

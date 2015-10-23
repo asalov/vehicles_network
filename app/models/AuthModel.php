@@ -41,6 +41,14 @@ class AuthModel extends Model{
 		return $this->user->get($field);
 	}
 
+	public function getRole(){
+		$roleId = $this->user->get('role_id');
+
+		$q = $this->db->select('roles', 'name', ['id' => $roleId]);
+
+		return $q->first()->name;
+	}
+
 	// Different name?
 	public function checkPermissions($permission){
 		return $this->user->hasPermission($permission);

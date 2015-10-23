@@ -2,15 +2,15 @@
 
 return [
 	// 'base_url' the url that point to HybridAuth Endpoint (where index.php and config.php are found)
-	'base_url' => 'http://localhost/vehicles_network/login/authenticate',
+	'base_url' => 'YOUR_REDIRECT_URL',
 
 	'providers' => [
 		// Google
 	    'Google' => [ // 'id' is your google client id
 	       'enabled' => true,
 	       'keys' => [ 
-	       		'id' => '256376790807-93foviosp1ol333ls5pggfhp2j8vjr7m.apps.googleusercontent.com', 
-	       		'secret' => '6BpIjI8XT_vVOqgHkplHR22x'
+	       		'id' => 'YOUR_GOOGLE_APP_ID', 
+	       		'secret' => 'YOUR_GOOGLE_APP_SECRET'
 	       	],
 	    ],
 
@@ -18,8 +18,8 @@ return [
 	    'Facebook' => [ // 'id' is your facebook application id
 	       'enabled' => true,
 	       'keys' => [ 
-	       		'id' => '1036250943094460', 
-	       		'secret' => 'd76c8b3ed675a6f91b00c625f3b71c30' 
+	       		'id' => 'YOUR_FACEBOOK_APP_ID', 
+	       		'secret' => 'YOUR_FACEBOOK_APP_SECRET' 
 	       	],
 	       'scope' => 'public_profile email',
 	       'display' => 'page'
@@ -29,8 +29,8 @@ return [
 	    'Twitter' => [ // 'key' is your twitter application consumer key
 	       'enabled' => true,
 	       'keys' => [
-	       		'key' => '4ZmsANguV99xi6FQ3T7yOcuey', 
-	       		'secret' => 'PlmXVXbY5VyQfCnWGNKxHvKzowcUnRUiNMF4nFpToPIkylFXjg' 
+	       		'key' => 'YOUR_TWITTER_APP_KEY', 
+	       		'secret' => 'YOUR_TWITTER_APP_SECRET' 
 	       	],
 	       	'includeEmail' => true
 	    ],

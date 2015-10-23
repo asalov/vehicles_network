@@ -9,21 +9,23 @@ class UserModel extends Model{
 		return $this;
 	}
 
+	// Review this!
+	public function getAssignedVehicle($userId){
+		$bitacora = $this->api->get('bitacora')->data();
+
+		foreach($bitacora as $b){
+			if(getStr($b->User_idUser) === $userId) return $b;
+		}
+	}
+
 	public function showVideoRecommendations($userId, $resultsPageToken = null){
 		// Review this!
 		// if the user is assigned a heavy vehicle driver role
 		// get vehicles connected to driver => Bitacora -> Vehicle_model -> name
-		$bitacora = $this->api->get('bitacora')->data('idBitacora');
 
-		$userVehicle = null;
+		$bitacora = $this->api->get('bitacora')->data();
 
-		foreach($bitacora as $b){
-			if(getStr($b->User_idUser) === $userId){
-				$userVehicle = $b->Vehicle_Vehicle_model_idvehicle_model;
-
-				break;
-			}
-		}
+		$userVehicle = $this->getAssignedVehicle($userId)->Vehicle_Vehicle_model_idvehicle_model;
 
 		if($userVehicle !== null){
 			$vehicleModel = getStr($this->api->get('vehicle_model', $userVehicle)->data('idVehicle_model')->name);
@@ -50,10 +52,25 @@ class UserModel extends Model{
 	}
 
 	public function getCompany($userId){
-		// historical stock market value of company in a CSV file.
-
 		$organizationId = $this->api->get('user', $userId)->data('idUser')->Organization_idOrganization;
 		
 		return $this->api->get('organization', $organizationId)->data('idOrganization');
-	}	
+	}
+
+	public function getStock($params){		
+		$url = 'http://ichart.finance.yahoo.com/table.csv?';
+
+		$i = 0;
+		$len = count($params);
+
+		foreach($params as $key => $val){
+			$url .= $key . '=' . $val;
+
+			if($i < $len - 1) $url .= '&';
+
+			$i++;
+		}
+
+		return file_get_contents($url);
+	}
 }

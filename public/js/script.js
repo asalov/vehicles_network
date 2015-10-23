@@ -1,83 +1,95 @@
 $(document).ready(function(){
 	'use strict';
 
+	// Create loading spinner
+	var $spinner = $('<i>', { class: 'fa fa-spinner fa-spin hidden'});
+	$('body').append($spinner);
+
 	// Show extra vehicle info on user request
 	$('.show-vehicle-info').click(function(e){
 		e.preventDefault();
 
+		$spinner.removeClass('hidden');
+
 		var $link = $(this);
-		var $vehicleId = $link.siblings('input[name=vehicle_id]').val();
-		var $modelId = $link.siblings('input[name=model_id]').val();
-		var $organizationId = $link.siblings('input[name=organization_id]').val();
+
+		var $vehicleId = $link.prevAll('input[name=vehicle_id]').val();
+		var $modelId = $link.prevAll('input[name=model_id]').val();
+		var $organizationId = $link.prevAll('input[name=organization_id]').val();
 
 		if(!$link.parent().hasClass('data-retrieved')){
-			// Wait for AJAX request to finish before making the next one?
-
 			// Get extra info
-			ajax('getExtraInfo/' + $modelId + '/' + $organizationId, function(data){
-				var $modelP = $('<p/>');
-				var $organizationP = $('<p/>');
-				var $modelLabel = $('<span>', { class: 'label-span', text: 'Model '});
-				var $organizationLabel = $('<span>', { class: 'label-span', text: 'Organization '});
+			ajax('analyst/getExtraInfo/' + $modelId + '/' + $organizationId, function(data){
+				var $model = addLine('Model', data.model);
+				var $organization = addLine('Organization', data.organization);
 
-				$modelP.append($modelLabel);
-				$modelP.append(data.model);
-
-				$organizationP.append($organizationLabel);
-				$organizationP.append(data.organization);
-
-				$link.before($modelP);
-				$link.before($organizationP);
+				$link.before($model);
+				$link.before($organization);
 			});
 
 			// Get usage info
-			ajax('getUsage/' + $vehicleId, function(data){
+			ajax('analyst/getUsage/' + $vehicleId, function(data){
 				if(data.length !== 0){
 					var $h4 = $('<h4>Usage stats</h4>');
 
-					var $startTimeP = $('<p/>');
-					var $endTimeP = $('<p/>');
-					var $driverP = $('<p/>');
-					var $startTimeLabel = $('<span>', { class: 'label-span', text: 'Start time '});
-					var $endTimeLabel = $('<span>', { class: 'label-span', text: 'End time '});
-					var $driverLabel = $('<span>', { class: 'label-span', text: 'Driver '});
-
-					$startTimeP.append($startTimeLabel);
-					$startTimeP.append(data.start_time);
-
-					$endTimeP.append($endTimeLabel);
-					$endTimeP.append(data.end_time);
-
-					$driverP.append($driverLabel);
-					$driverP.append(data.user);
-
 					$link.before($h4);
-					$link.before($startTimeP);
-					$link.before($endTimeP);
-					$link.before($driverP);
+
+					for(var i = 0; i < data.length; i++){
+						var $div = $('<div/>');
+						var $startTime = addLine('Start time', data[i].start_time);
+						var $endTime = addLine('End time', data[i].end_time);
+						var $driver = addLine('Driver', data[i].user);
+
+						$div.append($startTime);
+						$div.append($endTime);
+						$div.append($driver);
+
+						$link.before($div);
+					}
 				}
 			});
 
+			// ajax('analyst/getSensors/' + $vehicleId, function(data){
+			// 	if(data.length !== 0){
+			// 		var $h4 = $('<h4>Vehicle sensors</h4>');
+
+			// 		var $ul = $('<ul>');
+
+			// 		for(var i = 0; i < data.length; i++){
+			// 			var $li = $('<li>', { text: data[i].name});
+
+			// 			$ul.append($li);
+			// 		}
+
+			// 		$link.before($h4);
+			// 		$link.before($ul);
+			// 	}
+			// });
+
 			// Get log info
-			ajax('getLogs/' + $vehicleId, function(data){
+			ajax('analyst/getLogs/' + $vehicleId, function(data){
 				if(data.length !== 0){
 					var $h4 = $('<h4>Log information</h4>');
 
-					var $statusP = $('<p/>');
-					var $logUrlP = $('<p/>');
-					var $statusLabel = $('<span>', { class: 'label-span', text: 'Status '});
-					var $logUrlLabel = $('<span>', { class: 'label-span', text: 'Log file '});
-					var $logUrl = $('<a>', { href: data.link, text: 'Log', target: '_blank'});
+					var $ul = $('<ul>');
 
-					$statusP.append($statusLabel);
-					$statusP.append(data.status);
+					for(var i = 0; i < data.length; i++){
+						var $sensor = addLine('Sensor type', data[i].sensor, 'li');
 
-					$logUrlP.append($logUrlLabel);
-					$logUrlP.append($logUrl);
+						var logLink = data[i].link;
+						var logName = logLink.substr(logLink.lastIndexOf('/') + 1);
+
+						var $logUrl = addLine('Log file', $('<a>', { href: logLink, text: logName, target: '_blank'}), 'li');
+
+						$ul.append($sensor);
+						$ul.append($logUrl);					
+					}
+
+					var $button = $('<button>', {id: 'show_log_data', class: 'btn btn-primary', text: 'Show data'});
 
 					$link.before($h4);
-					$link.before($statusP);
-					$link.before($logUrlP);
+					$link.before($ul);
+					$link.before($button);
 				}
 			});
 
@@ -85,6 +97,10 @@ $(document).ready(function(){
 
 			// Show less option?
 			$link.hide();
+
+			$(document).ajaxStop(function(){
+				$spinner.addClass('hidden');
+			});
 		}
 	});
 	
@@ -92,7 +108,8 @@ $(document).ready(function(){
 	if(jQuery().datepicker !== undefined){
 		// Set up datepicker
 		var datepickerOptions = {
-			weekStart: 1
+			weekStart: 1,
+			daysOfWeekDisabled: [0, 6] // Disable weekends (since data does not include them)
 		};
 
 		$('#start_date').datepicker(datepickerOptions);
@@ -105,40 +122,165 @@ $(document).ready(function(){
 	});
 
 	// Get stock data
-	$('#get_stock_data').click(function(e){
-		e.preventDefault();
-
+	$('#download_stock_data').click(function(){
 		var $optionsForm = $(this).parent().prev();
 		var $stockName = $optionsForm.find('#stock_name').val();
-		var $startDate = $optionsForm.find('#start_date').val().trim();
-		var $endDate = $optionsForm.find('#end_date').val().trim();
-		var $interval = $optionsForm.find('#interval').val().trim();
-
-		var options = {};
-
-		if($startDate.length > 0) options.start_date = $startDate;
-		if($endDate.length > 0) options.end_date = $endDate;
-		if($interval.length > 0) options.interval = $interval;
 		
-		// getStockData($stockName, options);
-		window.location = getStockData($stockName, options);
+		window.location = downloadStockData($stockName, setStockOptions($optionsForm));
+	});
+
+	// Visualize stock data
+	$('#visualize_data').click(function(){
+		// Fix this repetition
+		var $optionsForm = $(this).parent().prev();
+		var $stockName = $optionsForm.find('#stock_name').val();
+		
+		var stockUrl = downloadStockData($stockName, setStockOptions($optionsForm));
+		var urlParams = stockUrl.substr(stockUrl.lastIndexOf('?') + 1);
+
+		var ajaxOptions = {
+			method: 'post',
+			data: urlParams,
+			returnType: 'text'
+		};
+
+		ajax('director/getStockData', function(returnData){
+			var data = d3.csv.parse(returnData);
+			
+			// console.log(data);
+
+			for(var i = 0; i < data.length; i++){
+				data[i].Low = parseFloat(data[i].Low);
+				data[i].High = parseFloat(data[i].High);
+				data[i].Open = parseFloat(data[i].Open);
+				data[i].Close = parseFloat(data[i].Close);
+				data[i].Date = new Date(data[i].Date);
+			}
+
+			visualizeData(data);
+		}, ajaxOptions);
+
+		$('html, body').animate({ scrollTop: $(document).height() }, 1000);
+	});
+
+	// Show drive path
+	if($('#map').length > 0){
+		$spinner.removeClass('hidden');
+
+		var ajaxOptions = { returnType: 'text'};
+
+		ajax('getGPSData', function(data){
+			var values = d3.csv.parseRows(data);
+			var sessionInfo = {
+				coordinates: []
+			};
+
+			var averageSpeed = 0;
+			var count = 0;
+
+			for(var i = 0; i < values.length; i++){
+				/*
+					latitude = values[i][0]
+					longitude = values[i][1]
+					altitude = values[i][2]
+					date = values[i][3]
+					start/stop = values[i][4]
+					seconds run = values[i][5]
+					meters run = values[i][6]
+					m/s = values[i][7]
+				*/
+
+				if(values[i][0] === '') continue; // Skip empty lines
+
+				var latitude = parseFloat(values[i][0]);
+				var longitude = parseFloat(values[i][1]);
+
+				sessionInfo.coordinates.push({ lat: latitude, lng: longitude});
+				
+				averageSpeed += parseFloat(values[i][7]);
+				count++;
+
+				// Set values at last loop iteration
+				if(count > 1 && (parseInt(values[i][4]) === 1)){
+					var date = new Date(1989, 11, 31);
+					date.setSeconds(values[i][3]);
+
+					sessionInfo.timestamp = date;
+					sessionInfo.duration = (values[i - 1][5]);
+					sessionInfo.distance = (values[i - 1][6] / 1000).toFixed(2);
+					sessionInfo.avgSpeed = ((averageSpeed / count) / (1000 / 3600)).toFixed(1);
+				}
+			}
+
+			showDrivePath($('#map')[0], sessionInfo);
+			$spinner.addClass('hidden');
+		}, ajaxOptions);
+	}
+
+	$('.list-group').on('click', '#show_log_data', function(){
+		var $links = $(this).prev().find('a');
+
+		var urls = [];
+		$links.each(function(){
+			urls.push($(this).attr('href'));
+		});
+
+		var ajaxOptions = {
+			method: 'post',
+			data: { links: urls},
+			returnType: 'text'
+		};
+
+		ajax('analyst/getLogContents', function(returnData){
+			var data = d3.csv.parseRows(returnData);
+
+			combineData(data);
+		}, ajaxOptions);
 	});
 });
 
-function ajax(params, callback){
+function ajax(destination, callback, options){
+	var method = 'get';
+	var data = {};
+	var returnType = 'json';
+
+	if(options !== undefined){
+		if(options.method !== undefined) method = options.method;
+		if(options.returnType !== undefined) returnType = options.returnType;
+		if(options.data !== undefined) data = options.data;
+	}
+
 	var url = location.href;
+
+	if(url[url.length - 1] === '/') url = url.substr(0, url.length - 1);
+
 	url = url.substr(0, url.lastIndexOf('/') + 1);
 	
 	$.ajax({
-		method: 'get',
-		url: url + params,
-		dataType: 'json'
-	}).done(function(data){
-		callback(data);
+		method: method,
+		url: url + destination,
+		dataType: returnType,
+		data: data
+	}).done(function(response){
+		callback(response);
 	});	
 }
 
-function getStockData(stockName, options){
+function setStockOptions(form){
+	var $startDate = form.find('#start_date').val().trim();
+	var $endDate = form.find('#end_date').val().trim();
+	var $interval = form.find('#interval').val().trim();
+
+	var options = {};
+
+	if($startDate.length > 0) options.start_date = $startDate;
+	if($endDate.length > 0) options.end_date = $endDate;
+	if($interval.length > 0) options.interval = $interval;
+
+	return options;
+}
+
+function downloadStockData(stockName, options){
 	var url = 'http://ichart.finance.yahoo.com/table.csv?s=' + stockName;
 
 	url = appendDateStr(url, options.start_date, ['a', 'b', 'c']);
@@ -146,7 +288,6 @@ function getStockData(stockName, options){
 
 	if(options.interval !== undefined) url += '&g=' + options.interval;
 
-	console.log(url);
 	return url;
 }
 
@@ -159,4 +300,263 @@ function appendDateStr(url, dateOption, params){
 	}
 
 	return url;
+}
+
+// Show last driven path
+function showDrivePath(mapElement, sessionInfo){
+	var coordinates = sessionInfo.coordinates;
+	var timestamp = sessionInfo.timestamp;
+	var mapCenter = {lat: coordinates[0].lat, lng: coordinates[0].lng};
+
+	var map = new google.maps.Map(mapElement, {
+		center: mapCenter,
+		zoom: 14,
+		mapTypeId: google.maps.MapTypeId.HYBRID
+	});
+
+	var drivePath = new google.maps.Polyline({
+		path: coordinates,
+		geodesic: true,
+		strokeColor: '#FF0000',
+		strokeOpacity: 1.0,
+		strokeWeight: 5
+	});
+
+	var $div = $('<div>');
+	var $h3 = $('<h3>', { text: 'Drive session information'});
+	var $date = addLine('Date', timestamp.getDate() + '/' + addZero(timestamp.getMonth() + 1) + '/' + timestamp.getFullYear());
+	var $endTime = addLine('End', addZero(timestamp.getHours()) + ':' + addZero(timestamp.getMinutes()) + ':' + timestamp.getSeconds());
+	
+	var start = timestamp;
+	start.setSeconds(timestamp.getSeconds() - sessionInfo.duration);
+
+	var $startTime = addLine('Start', addZero(start.getHours()) + ':' + addZero(start.getMinutes()) + ':' + start.getSeconds());
+	
+	var $duration = addLine('Duration', secsToMins(sessionInfo.duration) + ' min');
+	var $distance = addLine('Distance', sessionInfo.distance + ' km');
+	var $speed = addLine('Average speed', sessionInfo.avgSpeed + ' km/h');
+
+	$div.append($h3);
+	$div.append($date);
+	$div.append($startTime);
+	$div.append($endTime);
+	$div.append($duration);
+	$div.append($distance);
+	$div.append($speed);
+
+	var infoWindow = new google.maps.InfoWindow({
+		content: $div[0]
+	});
+
+	var marker = new google.maps.Marker({
+		position: mapCenter,
+		map: map,
+		title: 'Session info'
+	});
+
+	marker.addListener('click', function(){
+		infoWindow.open(map, marker);
+	});
+
+	drivePath.setMap(map);
+
+	$(mapElement).removeClass('hidden');
+
+	map.addListener('idle', function(){
+		setTimeout(function(){
+			marker.setAnimation(google.maps.Animation.DROP);
+		}, 200);
+	});
+}
+
+// Change name?
+function addLine(labelTxt, data, element){
+	var el = (element !== undefined) ? element : 'p'; 
+	var $parent = $('<' + el + '/>');
+
+	var $label = $('<span>', { class: 'label-span', text: labelTxt + ' '});
+
+	$parent.append($label);
+	$parent.append(data);
+
+	return $parent;
+}
+
+function secsToMins(time){
+	var mins = Math.floor(time / 60);
+	var seconds = time % 60;
+
+	return addZero(mins) + ':' + addZero(seconds);
+}
+
+function addZero(num){
+	return (num < 10) ? '0' + num : num;
+}
+
+function visualizeData(data){
+	$('.visualization').empty();
+
+	var w = $('.container').width();
+	var h = 600;
+	var margin = {
+		top: 20,
+		right: 20,
+		bottom:50,
+		left: 50
+	};
+	var colors = d3.scale.category10();
+
+	var excluded = ['Volume', 'Adj Close', 'Date'];
+	var xAxisVar = 'Date';
+	var keys = d3.keys(data[0]).filter(function(key){ return excluded.indexOf(key) === -1; });
+	var stockData = keys.map(function(name){
+		return {
+			name: name,
+			values: data.map(function(d){
+				return {name: name, date: d[xAxisVar], value: d[name]};
+			}).reverse()
+		};
+	});
+
+	colors.domain(keys);
+
+	var xScale = d3.time.scale()
+					.domain(d3.extent(data, function(d){
+						return d.Date;
+					}))
+					.range([margin.left + 2, w - 200]);
+
+	var yScale = d3.scale.linear()
+					.domain([
+						d3.min(stockData, function(c){
+							return d3.min(c.values, function(d){ return d.value; });
+						}), 
+						d3.max(stockData, function(c){
+							return d3.max(c.values, function(d){ return d.value; });
+						})
+					])
+					.range([h - (margin.bottom + margin.left), 10]);
+
+	var xAxis = d3.svg.axis()
+				  .scale(xScale)
+				  .tickFormat(d3.time.format('%d %b %Y'));
+
+	var yAxis = d3.svg.axis()
+				  .scale(yScale)
+				  .orient('left')
+				  .ticks(7);
+
+	var svg = d3.select('.visualization')
+				.append('svg')
+				.attr('width', w)
+				.attr('height', h);
+
+	svg.append('g')
+	   .attr('transform', 'translate(0, ' + (h - (margin.bottom + 48)) + ')')
+	   .attr('class', 'axis')
+	   .call(xAxis)
+	   .selectAll('text')  
+	   .style('text-anchor', 'end')
+	   .attr('dx', '-.8em')
+	   .attr('dy', '.15em')
+	   .attr('transform', 'rotate(-65)' );
+
+	svg.append('g')
+	   .attr('transform', 'translate(' + margin.left + ', 0)')
+	   .attr('class', 'axis')
+	   .call(yAxis);
+
+	var showLine = d3.svg.line()
+					 .x(function(d){ return xScale(d.date); })
+					 .y(function(d){ return yScale(d.value); });
+
+
+	var lines = svg.selectAll('.line')
+					.data(stockData)
+					.enter()
+					.append('g')
+					.attr('class', 'line')
+					.attr('id', function(d){ return 'line' + d.name; })
+					.on('click', function(d){
+						d3.select(this).classed('hidden', true);
+
+						var graphLegend = d3.select('.legend-item[data-graph=line-' + d.name.toLowerCase() + ']');
+						graphLegend.selectAll('rect').classed('disabled', true);
+						graphLegend.selectAll('text').classed('disabled', true);
+					})
+					.on('mouseover', function(){
+						var line = d3.select(this).selectAll('path');
+
+						line.attr('stroke-width', 6).transition().duration(1000);
+					})
+					.on('mouseout', function(){
+						var line = d3.select(this).selectAll('path');
+
+						line.attr('stroke-width', 4).transition().duration(1000);
+					});					
+
+	lines.append('path')
+		 .attr('d', function(d){ return showLine(d.values); })
+		 .attr('stroke', function(d){ return colors(d.name); })
+		 .attr('stroke-width', 4)
+		 .attr('fill', 'none'); 
+
+	lines.selectAll('circle')
+		 .data(function(d){ return d.values; })
+		 .enter()
+		 .append('circle')
+		 .attr('cx', function(d){ return xScale(d.date); })
+		 .attr('cy', function(d){ return yScale(d.value); })
+		 .attr('r', 3)
+		 .attr('stroke', function(d){ return colors(d.name); })
+		 .attr('stroke-width', 2)
+		 .attr('fill', '#fff');
+
+	var legend = svg.append('g')
+		  			.attr('class', 'legend');
+
+	var legendItem = legend.selectAll('.legend-item')
+							.data(keys)
+							.enter()
+							.append('g')
+							.attr('class', 'legend-item')
+							.attr('data-graph', function(d){ return 'line-' + d.toLowerCase(); })
+				  			.on('click', function(d){
+				  				var item = d3.select(this);
+				  				var id = '#line' + d;
+								var hidden = !d3.select(id).classed('hidden');
+
+								d3.select(id).classed('hidden', hidden);
+								item.selectAll('rect').classed('disabled', hidden);
+								item.selectAll('text').classed('disabled', hidden);
+				  			});
+
+	legendItem.append('rect')
+			  .attr('x', w - 125)
+			  .attr('y', function(d, i){ return 15 + (i * 30); })
+			  .attr('width', 15)
+			  .attr('height', 15)
+			  .style('fill', function(d){ return colors(d); });
+
+	legendItem.append('text')
+			  .attr('x', w - 100)
+			  .attr('y', function(d, i){ return 27 + (i * 30); })
+			  .attr('width', 100)
+			  .attr('height', 30)
+			  .style('fill', function(d){return colors(d); })
+			  .text(function(d){ return d; });
+
+	lines.selectAll('path')
+		 .attr('stroke-dasharray', function(){
+			var length = d3.select(this).node().getTotalLength();
+			return length + ' ' + length;  
+		})
+		 .attr('stroke-dashoffset', function(){ return d3.select(this).node().getTotalLength(); })
+		 .transition()
+		 .duration(2000)
+		 .attr('stroke-dashoffset', 0);
+}
+
+function combineData(data){
+	console.log(data);
 }

@@ -1,10 +1,10 @@
 <?php
 
 class RoleController extends Controller{
-	private $authModel;
-	private $vehicleModel;
-	private $userModel;
-	private $userId;
+	protected $authModel;
+	protected $vehicleModel;
+	protected $userModel;
+	protected $userId;
 
 	public function __construct(){
 		parent::__construct();
@@ -21,44 +21,7 @@ class RoleController extends Controller{
 		$this->view->set('userLogged', true);
 	}
 
-	public function driver($resultsPageToken = null){
-		$this->view->set('recommendations', $this->userModel->showVideoRecommendations($this->userId, $resultsPageToken));
-
-		$this->view->render('home/recommendations');
+	public function index(){
+		redirect(PATH . strtolower($this->authModel->getRole()));
 	}
-
-	public function analyst(){
-		$this->view->set('vehicles', $this->vehicleModel->getVehicles());
-
-		$this->view->render('home/usage');	
-	}
-
-	public function director(){
-		if($this->authModel->checkPermissions('access_stock_data')){
-			$company = $this->userModel->getCompany($this->userId);
-			
-			$this->view->set('companyName', $company->name);
-			$this->view->set('stockName', $company->stockName);
-			$this->view->set('accessGranted', true);
-			$this->view->set('showDatepicker', true);
-		}
-
-		$this->view->render('home/stock');	
-	}
-
-	public function getExtraInfo($modelId, $organizationId){
-		echo toJson($this->vehicleModel->getVehicleInfo($modelId, $organizationId));
-	}
-
-	public function getSensors($vehicleId){
-		echo toJson($this->vehicleModel->getSensorData($vehicleId));
-	}
-
-	public function getUsage($vehicleId){
-		echo toJson($this->vehicleModel->getUsageData($vehicleId));
-	}
-
-	public function getLogs($vehicleId){
-		echo toJson($this->vehicleModel->getLogData($vehicleId));
-	}	
 }

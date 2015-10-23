@@ -20,7 +20,7 @@ class LoginController extends Controller{
 
 			if($user !== null){
 				// Redirect depending on user role
-				redirect(PATH . 'role/' . strtolower($user->role));
+				redirect(PATH . strtolower($user->role));
 			}else{
 				$this->view->set('error', 'You do not have permission to access this system.');
 

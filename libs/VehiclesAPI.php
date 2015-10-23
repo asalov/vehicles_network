@@ -9,17 +9,17 @@ class VehiclesAPI{
 	}
 
 	public function get($table, $id = ''){
-		$location = ucfirst(strtolower($table));
+		$params = 'table=' . ucfirst(strtolower($table));
 
-		if($id !== '') $location .= '&id=' . $id;
+		if($id !== '') $params .= '&id=' . $id;
 
-		$this->retrieveData($location); 
+		$this->retrieveData('getData', $params); 
 
 		return $this;
 	}
 
-	private function retrieveData($url){
-		$url = $this->hostUrl . 'getData.php?table=' . $url;
+	private function retrieveData($method, $params){
+		$url = $this->hostUrl . $method . '.php?' . $params;
 
 		$this->data = simplexml_load_string(file_get_contents($url));
 	}
@@ -30,5 +30,13 @@ class VehiclesAPI{
 
 	public function getHostUrl(){
 		return $this->hostUrl;
+	}
+
+	public function getLog($field, $value){
+		$params = 'parameter=' . $field . '&value=' . $value;
+
+		$this->retrieveData('getLogContext', $params); 
+
+		return $this;
 	}
 }
