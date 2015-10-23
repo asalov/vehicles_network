@@ -71,24 +71,41 @@ $(document).ready(function(){
 				if(data.length !== 0){
 					var $h4 = $('<h4>Log information</h4>');
 
-					var $ul = $('<ul>');
+					var $tb = $('<table>', { class: 'table table-striped'});
+					var $thFile = $('<th>', { text: 'File name'});
+					var $thSensor = $('<th>', { text: 'Sensor type'});
+					var $thLink = $('<th>', { text: 'Link'});
+					var $thNotes = $('<th>', { text: 'Notes'});
+
+					$tb.append($thFile);
+					$tb.append($thSensor);
+					$tb.append($thLink);
+					$tb.append($thNotes);
 
 					for(var i = 0; i < data.length; i++){
-						var $sensor = addLine('Sensor type', data[i].sensor, 'li');
+						var $tr = $('<tr>', { class: 'log'});
 
 						var logLink = data[i].link;
 						var logName = logLink.substr(logLink.lastIndexOf('/') + 1);
 
-						var $logUrl = addLine('Log file', $('<a>', { href: logLink, text: logName, target: '_blank'}), 'li');
+						var $fileName = $('<td>', { text: logName});	
+						var $sensor = $('<td>', { text: data[i].sensor, class: 'sensor-type'});
+						var $logUrl = $('<td>', { html: $('<a>', { href: logLink, text: 'File', target: '_blank'}) });
 
-						$ul.append($sensor);
-						$ul.append($logUrl);					
+						var $notes = $('<td>',{ class: 'log-notes', contenteditable: true});
+
+						$tr.append($fileName);
+						$tr.append($sensor);
+						$tr.append($logUrl);
+						$tr.append($notes);
+
+						$tb.append($tr);
 					}
 
 					var $button = $('<button>', {id: 'show_log_data', class: 'btn btn-primary', text: 'Show data'});
 
 					$link.before($h4);
-					$link.before($ul);
+					$link.before($tb);
 					$link.before($button);
 				}
 			});
@@ -130,7 +147,7 @@ $(document).ready(function(){
 	});
 
 	// Visualize stock data
-	$('#visualize_data').click(function(){
+	$('#visualize_stock_data').click(function(){
 		// Fix this repetition
 		var $optionsForm = $(this).parent().prev();
 		var $stockName = $optionsForm.find('#stock_name').val();
@@ -217,25 +234,139 @@ $(document).ready(function(){
 		}, ajaxOptions);
 	}
 
-	$('.list-group').on('click', '#show_log_data', function(){
-		var $links = $(this).prev().find('a');
+	// Add notes to log file
+	// $('.list-group').on('blur', '.log-notes', function(){
+	// 	var ajaxOptions = {
+	// 		method: 'post',
+	// 		data: {},
+	// 		returnType: 'text'
+	// 	};
 
-		var urls = [];
-		$links.each(function(){
-			urls.push($(this).attr('href'));
+	// 	ajax('analyst/saveAnnotation', function(){
+
+	// 	}, ajaxOptions);
+	// });
+
+	$('.list-group').on('click', '#show_log_data', function(){
+		$spinner.removeClass('hidden');
+
+		var $logs = $(this).prev().find('.log');
+
+		var logData = {};
+		$logs.each(function(){
+			var $log = $(this);
+			var $sensor = $log.find('.sensor-type').text();
+
+			if($sensor !== 'GPS' && $sensor !== 'Timer'){
+				var sensorType = $sensor.replace(/\s/g, '');
+
+				logData[sensorType] = $log.find('a').attr('href');
+			}
 		});
 
 		var ajaxOptions = {
 			method: 'post',
-			data: { links: urls},
-			returnType: 'text'
+			data: { logs: logData}
 		};
 
-		ajax('analyst/getLogContents', function(returnData){
-			var data = d3.csv.parseRows(returnData);
+		var $visualizationDiv = $('<div>', { class: 'visualization'});
+		$(this).parent().append($visualizationDiv);
 
-			combineData(data);
+		ajax('analyst/getLogContents', function(returnData){
+			// for(var i = 0; i < data.length; i++){
+			// 	var d = new Date(data[i][0]);
+
+			// 	data[i][0] = (d.getHours() < 6) ? new Date(data[i][0] + ' pm') : new Date(data[i][0]);
+			// 	console.log(data[i][0]);
+			// 	data[i][1] = parseInt(data[i][1]);
+			// }
+
+			combineData(returnData);
+
+			$spinner.addClass('hidden');
 		}, ajaxOptions);
+	});
+
+	$('#visualization_vectors').change(function(){
+		var $vector = $(this);
+		var $checkboxes = $vector.parent().next().find('.sensors').find('input[type=checkbox]');
+		var $selected = $vector.val();
+
+		$checkboxes.attr('disabled', false);
+		$checkboxes.prop('checked', false);
+
+		var $tempCheckbox = $checkboxes.filter('.temp');
+		var $weightCheckbox = $checkboxes.filter('.weight');
+		var $speedCheckbox = $checkboxes.filter('.speed');
+
+		switch($selected){
+			case 'weight-temp':
+				$weightCheckbox.attr('disabled', true);
+				$weightCheckbox.prop('checked', true);
+				$speedCheckbox.attr('disabled', true);
+			break;
+			case 'weight-speed':
+				$weightCheckbox.attr('disabled', true);
+				$weightCheckbox.prop('checked', true);
+				$speedCheckbox.attr('disabled', true);
+				$speedCheckbox.prop('checked', true);
+				$tempCheckbox.attr('disabled', true);
+			break;
+			case 'speed-temp':
+				$weightCheckbox.attr('disabled', true);
+				$speedCheckbox.attr('disabled', true);
+				$speedCheckbox.prop('checked', true);
+			break;
+			default:
+				$weightCheckbox.attr('disabled', true);
+				$speedCheckbox.attr('disabled', true);
+			break;
+		}
+	});
+
+	$('#visualize_log_data').click(function(e){
+		e.preventDefault();
+
+		$spinner.removeClass('hidden');
+
+		var $checkboxes = $(this).parent().prev().find('input[type=checkbox]');
+		var logData = {};
+
+		$checkboxes.each(function(){
+			var $box = $(this);
+
+			if($box.prop('checked')){
+				var sensorType = $box.parent().text().replace(/\s/g, '');
+
+				logData[sensorType] = $box.parent().next().val();
+			}
+		});
+
+		// Start date
+		// End date
+		// Vectors
+
+		/*
+			[
+				'start' => '05/01/2015',
+				'end' => '08/01/2015',
+				'vectors' => '',
+				'logs' => [
+					'key' => 'value'
+				]
+			]
+		*/
+
+		var ajaxOptions = {
+			method: 'post',
+			data: { logs: logData}
+		};
+
+		ajax('getLogContents', function(returnData){
+			combineData(returnData);
+
+			$spinner.addClass('hidden');
+		}, ajaxOptions);		
 	});
 });
 
@@ -558,5 +689,190 @@ function visualizeData(data){
 }
 
 function combineData(data){
-	console.log(data);
+	$('.visualization').empty();
+
+	var w = $('.list-group-item').width();
+	var h = 700;
+	var margin = {
+		top: 20,
+		right: 20,
+		bottom:100,
+		left: 50
+	};
+	var colors = d3.scale.category10();
+
+	// console.log(data);
+
+	// Do it with d3
+	// var keys = d3.keys(data).filter(function(key){ return key !== xAxisVar; });
+	
+	var xAxisVar = 'date';
+	var keys = [];
+	for(var i = 0; i < data.length; i++){
+		var objKeys = Object.keys(data[i]);
+
+		if(keys.indexOf(objKeys[1]) == -1) keys.push(objKeys[1]);
+	}
+
+	colors.domain(keys);
+
+	var logData = [];
+
+	for(var i = 0; i < keys.length; i++){
+		var name = keys[i];
+		var values = [];
+
+		for(var j = 0; j < data.length; j++){
+			if(data[j][name] !== undefined) values.push({name: name, date: new Date(data[j][xAxisVar]), value: data[j][name]});
+		}
+
+		logData.push({ name: name, values: values});
+	}
+
+	// var logData = keys.map(function(name){
+	// 	return {
+	// 		name: name,
+	// 		values: data.map(function(d){
+	// 			return {name: name, date: new Date(d[xAxisVar]), value: d[name]};
+	// 		})
+	// 	};
+	// });
+
+	// console.log(logData);
+
+	var xScale = d3.time.scale()
+					.domain(d3.extent(data, function(d){
+						return new Date(d.date);
+					}))
+					.range([margin.left + 2, w - 200]);
+
+	var yScale = d3.scale.linear()
+					.domain([
+						d3.min(logData, function(c){
+							return d3.min(c.values, function(d){ return d.value; });
+						}), 
+						d3.max(logData, function(c){
+							return d3.max(c.values, function(d){ return d.value; });
+						})
+					])
+					.range([h - (margin.bottom + margin.left), 10]);
+
+	var xAxis = d3.svg.axis()
+				  .scale(xScale)
+				  .tickFormat(d3.time.format('%e %b %Y %H:%M'));
+
+	var yAxis = d3.svg.axis()
+				  .scale(yScale)
+				  .orient('left')
+				  .ticks(7);
+
+	var svg = d3.select('.visualization')
+				.append('svg')
+				.attr('width', w)
+				.attr('height', h);
+
+	svg.append('g')
+	   .attr('transform', 'translate(0, ' + (h - (margin.bottom + 48)) + ')')
+	   .attr('class', 'axis')
+	   .call(xAxis)
+	   .selectAll('text')  
+	   .style('text-anchor', 'end')
+	   .attr('dx', '-.8em')
+	   .attr('dy', '.15em')
+	   .attr('transform', 'rotate(-65)' );
+
+	svg.append('g')
+	   .attr('transform', 'translate(' + margin.left + ', 0)')
+	   .attr('class', 'axis')
+	   .call(yAxis);
+
+	var showLine = d3.svg.line()
+					 .x(function(d){ console.log(xScale(d.date)); return xScale(d.date); })
+					 .y(function(d){ return yScale(d.value); });
+
+
+	var lines = svg.selectAll('.line')
+					.data(logData)
+					.enter()
+					.append('g')
+					.attr('class', 'line')
+					.attr('id', function(d){ return 'line' + d.name; })
+					.on('click', function(d){
+						d3.select(this).classed('hidden', true);
+
+						var graphLegend = d3.select('.legend-item[data-graph=line-' + d.name.toLowerCase() + ']');
+						graphLegend.selectAll('rect').classed('disabled', true);
+						graphLegend.selectAll('text').classed('disabled', true);
+					})
+					.on('mouseover', function(){
+						var line = d3.select(this).selectAll('path');
+
+						line.attr('stroke-width', 6).transition().duration(1000);
+					})
+					.on('mouseout', function(){
+						var line = d3.select(this).selectAll('path');
+
+						line.attr('stroke-width', 4).transition().duration(1000);
+					});					
+
+	lines.append('path')
+		 .attr('d', function(d){ return showLine(d.values); })
+		 .attr('stroke', function(d){ return colors(d.name); })
+		 .attr('stroke-width', 4)
+		 .attr('fill', 'none'); 
+
+	// lines.selectAll('circle')
+	// 	 .data(function(d){ return d.values; })
+	// 	 .enter()
+	// 	 .append('circle')
+	// 	 .attr('cx', function(d){ return xScale(d.date); })
+	// 	 .attr('cy', function(d){ return yScale(d.value); })
+	// 	 .attr('r', 3)
+	// 	 .attr('stroke', function(d){ return colors(d.name); })
+	// 	 .attr('stroke-width', 2)
+	// 	 .attr('fill', '#fff');
+
+	var legend = svg.append('g')
+		  			.attr('class', 'legend');
+
+	var legendItem = legend.selectAll('.legend-item')
+							.data(keys)
+							.enter()
+							.append('g')
+							.attr('class', 'legend-item')
+							.attr('data-graph', function(d){ return 'line-' + d.toLowerCase(); })
+				  			.on('click', function(d){
+				  				var item = d3.select(this);
+				  				var id = '#line' + d;
+								var hidden = !d3.select(id).classed('hidden');
+
+								d3.select(id).classed('hidden', hidden);
+								item.selectAll('rect').classed('disabled', hidden);
+								item.selectAll('text').classed('disabled', hidden);
+				  			});
+
+	legendItem.append('rect')
+			  .attr('x', w - 125)
+			  .attr('y', function(d, i){ return 15 + (i * 30); })
+			  .attr('width', 15)
+			  .attr('height', 15)
+			  .style('fill', function(d){ return colors(d); });
+
+	legendItem.append('text')
+			  .attr('x', w - 100)
+			  .attr('y', function(d, i){ return 27 + (i * 30); })
+			  .attr('width', 100)
+			  .attr('height', 30)
+			  .style('fill', function(d){return colors(d); })
+			  .text(function(d){ return d; });
+
+	lines.selectAll('path')
+		 .attr('stroke-dasharray', function(){
+			var length = d3.select(this).node().getTotalLength();
+			return length + ' ' + length;  
+		})
+		 .attr('stroke-dashoffset', function(){ return d3.select(this).node().getTotalLength(); })
+		 .transition()
+		 .duration(2000)
+		 .attr('stroke-dashoffset', 0);
 }

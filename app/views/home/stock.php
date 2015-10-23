@@ -29,7 +29,7 @@
 				</div>
 				<div class="form-group">
 					<button type="button" class="btn btn-primary btn-lg" id="download_stock_data">Download data</button>
-					<button type="button" class="btn btn-primary btn-lg" id="visualize_data">Visualize data</button>
+					<button type="button" class="btn btn-primary btn-lg" id="visualize_stock_data">Visualize data</button>
 				</div>
 				<div class="visualization"></div>
 		<?php 

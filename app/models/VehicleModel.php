@@ -82,8 +82,10 @@ class VehicleModel extends Model{
 
 		foreach($logs as $log){
 			array_push($data, [
+				'id' => getStr($log['id']),
 				'sensor' => getStr($log->sensorTypeName),
-				'link' => $this->api->getHostUrl() . getStr($log->logname)
+				'link' => $this->api->getHostUrl() . getStr($log->logname),
+				// 'notes' => $this->getAnnotations($userId, getStr($log['id']))
 			]);
 		}
 		
@@ -109,12 +111,47 @@ class VehicleModel extends Model{
 	}
 
 	public function getAllLogs($urlArr){
-		$content = '';
+		$data = [];
 
-		foreach($urlArr as $dest){
-			$content .= file_get_contents($dest);
+		foreach($urlArr as $key => $val){
+			// $count = 0;
+			$rows = explode("\n", file_get_contents($val));
+
+			foreach($rows as $row){
+				$fields = explode(',', $row);
+
+				$date = new DateTime($fields[0]);
+
+				array_push($data, [
+					'date' => $date->format('m/d/Y H:i'),
+					$key => (int) $fields[1]
+				]);
+
+				// $count++;
+				// if($count > 500) break;		
+			}
 		}
 
-		return $content;
+		return $data;
+	}
+
+	public function getLogAnnotations($logId){
+		$q = $this->db->select('annotations', ['user_id', 'content'], ['log_id' => $logId], ['returnType' => 'array']);
+
+		return $query->results();
+	}
+
+	public function saveLogAnnotations($userId, $logId, $text){
+		if($this->annotationExists($userId, $logId)){
+			$this->db->insert('annotations', ['user_id' => $userId, 'log_id' => $logId, 'content' => $text]);
+		}else{
+			$this->db->update('annotations', ['content' => $text], ['user_id' => $userId, 'log_id' => $logId]);
+		}
+	}
+
+	private function annotationExists($userId, $logId){
+		$q = $this->db->select('annotations', '*', ['user_id' => $userId, 'log_id' => $logId]);
+
+		return $q->hasResults();
 	}
 }
