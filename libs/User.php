@@ -62,7 +62,8 @@ class User{
 		$id = $this->get('external_id');
 
 		$sql = "SELECT perm_id FROM users, permissions, role_permissions
-				WHERE users.role_id = role_permissions.role_id
+				WHERE permissions.id = role_permissions.perm_id 
+				AND users.role_id = role_permissions.role_id
 				AND users.external_id = :id AND permissions.name = :permission";
 		$query = $this->db->query($sql, ['id' => $id, 'permission' => $permisson]);
 

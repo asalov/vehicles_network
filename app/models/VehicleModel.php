@@ -34,13 +34,27 @@ class VehicleModel extends Model{
 	// Get sensor data
 	public function getSensorData($vehicleId){
 		$sensors = $this->api->get('sensor')->data();
-		
 		$data = [];
+		$types = ['temp', 'speed', 'weight', 'gps', 'timer'];
 
 		foreach($sensors as $sensor){
 			if(getStr($sensor->Vehicle_idvehicle) === $vehicleId){ // Fix this wierd shit
-				$sensorType = $this->api->get('sensor_type', $sensor->Sensor_type_idSensor_type)->data('idSensor_type');
-				array_push($data, ['name' => getStr($sensorType->name)]);
+				$sensorType = $this->api->get('sensor_type', getStr($sensor->Sensor_type_idSensor_type))->data('idSensor_type');
+				$name = getStr($sensorType->name);
+				
+				$sensorData = [
+					'id' => getStr($sensor['id']),
+					'name' => $name
+				];
+
+				foreach($types as $type){
+					if(strpos(strtolower($name), $type) !== false){
+						$sensorData['type'] = $type;
+						break;
+					}
+				}
+
+				array_push($data, $sensorData);
 			}			
 		}
 
@@ -71,27 +85,6 @@ class VehicleModel extends Model{
 		return $data;
 	}
 
-	// Get vehicle log info
-	public function getLogData($vehicleId){
-		$logs = $this->api->getLog('idvehicle', $vehicleId)->data();
-
-		// Return nothing if no results
-		if(count($logs->children()) === 0) return [];
-		
-		$data = [];
-
-		foreach($logs as $log){
-			array_push($data, [
-				'id' => getStr($log['id']),
-				'sensor' => getStr($log->sensorTypeName),
-				'link' => $this->api->getHostUrl() . getStr($log->logname),
-				// 'notes' => $this->getAnnotations($userId, getStr($log['id']))
-			]);
-		}
-		
-		return $data;
-	}
-
 	public function getVehicleUser($id){
 		$q = $this->db->select('users', ['first_name', 'last_name'], ['external_id' => $id]);
 
@@ -110,47 +103,73 @@ class VehicleModel extends Model{
 		return file_get_contents($link);
 	}
 
-	public function getAllLogs($urlArr){
+	// Get vehicle log info
+	public function getLogData($query){
+		$startDate = $query['start_date'];
+		$endDate = $query['end_date'];
+		// $vectors = $query['vectors'];
+
 		$data = [];
 
-		foreach($urlArr as $key => $val){
-			// $count = 0;
-			$rows = explode("\n", file_get_contents($val));
+		foreach($query['sensors'] as $sensorId){
+			$log = $this->api->getLog('idsensor', $sensorId)->data('idLogs'); // Select only first log
+			$sensorType = str_replace(' ', '', getStr($log->sensorTypeName));
 
+			$rows = explode("\n", file_get_contents($this->api->getHostUrl() . getStr($log->logname)));
+			
 			foreach($rows as $row){
 				$fields = explode(',', $row);
 
-				$date = new DateTime($fields[0]);
+				$date = $fields[0];
 
-				array_push($data, [
-					'date' => $date->format('m/d/Y H:i'),
-					$key => (int) $fields[1]
-				]);
+				if((strtotime($date) >= strtotime($startDate)) && (strtotime($date) <= strtotime($endDate))){
+					$date = new DateTime($date);
 
-				// $count++;
-				// if($count > 500) break;		
-			}
+					array_push($data, [
+						'date' => $date->format('m/d/Y H:i'),
+						$sensorType => (int) $fields[1]
+					]);
+				}
+			}	
 		}
 
 		return $data;
 	}
 
-	public function getLogAnnotations($logId){
-		$q = $this->db->select('annotations', ['user_id', 'content'], ['log_id' => $logId], ['returnType' => 'array']);
+	public function getVehicleAnnotations($vehicleId, $userId){
+		$sql = "SELECT annotations.id AS 'id', user_id, first_name, last_name, content, created_at
+				FROM users, annotations WHERE users.id = annotations.user_id
+				AND annotations.vehicle_id = :vehicleId
+				ORDER BY created_at DESC";
 
-		return $query->results();
-	}
+		$q = $this->db->query($sql, ['vehicleId' => $vehicleId], 'array');
 
-	public function saveLogAnnotations($userId, $logId, $text){
-		if($this->annotationExists($userId, $logId)){
-			$this->db->insert('annotations', ['user_id' => $userId, 'log_id' => $logId, 'content' => $text]);
-		}else{
-			$this->db->update('annotations', ['content' => $text], ['user_id' => $userId, 'log_id' => $logId]);
+		$results = [];
+
+		foreach($q->results() as $res){
+			$res['is_owner'] = ($res['user_id'] === $userId);
+
+			array_push($results, $res);
 		}
+
+		return $results;
 	}
 
-	private function annotationExists($userId, $logId){
-		$q = $this->db->select('annotations', '*', ['user_id' => $userId, 'log_id' => $logId]);
+	public function addVehicleAnnotation($userId, $vehicleId, $text){
+		$q = $this->db->insert('annotations', ['user_id' => $userId, 'vehicle_id' => $vehicleId, 'content' => $text]);
+
+		return ($q->hasResults()) ? $q->lastId() : null;
+	}
+
+	public function deleteVehicleAnnotation($userId, $annotationId){
+		$q = $this->db->delete('annotations', ['user_id' => $userId, 'id' => $annotationId]);
+
+		return $q->hasResults();
+	}
+
+	// Check if user has created annotation
+	public function hasAnnotation($userId, $annotationId){
+		$q = $this->db->select('annotations', 'id', ['user_id' => $userId, 'id' => $annotationId]);
 
 		return $q->hasResults();
 	}

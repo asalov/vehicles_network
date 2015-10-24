@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS annotations(
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	user_id INT NOT NULL,
 	content TEXT NOT NULL,
-	log_id INT NOT NULL,
+	vehicle_id INT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
@@ -52,5 +53,7 @@ INSERT INTO users(role_id, first_name, last_name, email, external_id) VALUES
 (3, 'Mattias', 'Berg', 'mattiasberg82@gmail.com', 1);
 
 INSERT INTO permissions(id, name) VALUES (1, 'access_stock_data');
+INSERT INTO permissions(id, name) VALUES (2, 'add_notes');
 
 INSERT INTO role_permissions(role_id, perm_id) VALUES(3, 1);
+INSERT INTO role_permissions(role_id, perm_id) VALUES(2, 2);

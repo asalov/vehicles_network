@@ -7,8 +7,6 @@ class AnalystController extends RoleController{
 	}
 
 	public function index(){
-		$this->view->set('showVisualization', true);
-
 		$this->view->set('vehicles', $this->vehicleModel->getVehicles());
 
 		$this->view->render('home/usage');			
@@ -18,29 +16,12 @@ class AnalystController extends RoleController{
 		$this->view->set('showDatepicker', true);
 		$this->view->set('showVisualization', true);
 
-		// MOVE TO MODEL
-		$allLogs = $this->vehicleModel->getLogData($vehicleId);
-		$logs = [];
-		$types = ['temp', 'speed', 'weight'];
+		if($this->authModel->checkPermissions('add_notes')) $this->view->set('addNotes', true);
 
-		foreach($allLogs as $log){
-			$sensor = $log['sensor'];
+		// Show vehicle plate + model?
 
-			if($sensor !== 'GPS' && $sensor !== 'Timer'){
-				$sensor = strtolower($sensor);
-
-				foreach($types as $type){
-					if(strpos($sensor, $type) !== false){
-						$log['type'] = $type;
-						break;
-					}
-				}
-
-				array_push($logs, $log);
-			}
-		}
-
-		$this->view->set('logs', $logs);
+		$this->view->set('vehicleId', $vehicleId);
+		$this->view->set('sensors', $this->vehicleModel->getSensorData($vehicleId));
 
 		$this->view->render('home/logs');
 	}
@@ -57,30 +38,30 @@ class AnalystController extends RoleController{
 		echo toJson($this->vehicleModel->getUsageData($vehicleId));
 	}
 
-	public function getLogs($vehicleId){
-		echo toJson($this->vehicleModel->getLogData($vehicleId));
+	public function getLogs(){
+		echo toJson($this->vehicleModel->getLogData($_POST));
 	}
 
-	public function getLogContents(){
-		echo toJson($this->vehicleModel->getAllLogs($_POST['logs']));
-
-		// $logs = [
-		// 	'EngineWaterTemperature' => 'http://4me302-ht15.host22.com/veh17_EngineWaterTemp.log',
-		// 	'HydraulicOilTemperature' => 'http://4me302-ht15.host22.com/veh17_Hydrualoljetemp.log',
-		// 	'TransmissionTemperatureConv' => 'http://4me302-ht15.host22.com/veh17_Transmission_conv_temp.log'
-		// ];
-		// echo toJson($this->vehicleModel->getAllLogs($logs));
-		// $this->vehicleModel->getAllLogs(['http://4me302-ht15.host22.com/veh17_EngineWaterTemp.log']);
+	public function getAnnotations($vehicleId){
+		echo toJson($this->vehicleModel->getVehicleAnnotations($vehicleId, $this->authModel->getUserData('id')));
 	}
 
-	public function getAnnotations($logId){
-		echo toJson($this->vehicleModel->getLogAnnotations($logId));
+	public function addAnnotation(){
+		if($this->authModel->checkPermissions('add_notes')){
+			$vehicleId = $_POST['vehicle_id'];
+			$text = $_POST['text'];
+
+			echo toJson($this->vehicleModel->addVehicleAnnotation($this->authModel->getUserData('id'), $vehicleId, $text));			
+		}
 	}
 
-	public function saveAnnotation(){
-		$logId = $_POST['log_id'];
-		$text = $_POST['text'];
+	public function deleteAnnotation($annotationId){
+		$userLocalId = $this->authModel->getUserData('id');
 
-		$this->vehicleModel->saveLogAnnotation($this->userId, $logId, $text);
+		if($this->authModel->checkPermissions('add_notes') && $this->vehicleModel->hasAnnotation($userLocalId, $annotationId)){
+			echo $this->vehicleModel->deleteVehicleAnnotation($userLocalId, $annotationId);
+		}
+
+		echo false;
 	}
 }

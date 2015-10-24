@@ -16,19 +16,20 @@ class UserModel extends Model{
 		foreach($bitacora as $b){
 			if(getStr($b->User_idUser) === $userId) return $b;
 		}
+
+		return null;
 	}
 
 	public function showVideoRecommendations($userId, $resultsPageToken = null){
 		// Review this!
 		// if the user is assigned a heavy vehicle driver role
 		// get vehicles connected to driver => Bitacora -> Vehicle_model -> name
-
-		$bitacora = $this->api->get('bitacora')->data();
-
-		$userVehicle = $this->getAssignedVehicle($userId)->Vehicle_Vehicle_model_idvehicle_model;
+		$userVehicle = $this->getAssignedVehicle($userId);
 
 		if($userVehicle !== null){
-			$vehicleModel = getStr($this->api->get('vehicle_model', $userVehicle)->data('idVehicle_model')->name);
+			$modelId = $userVehicle->Vehicle_Vehicle_model_idvehicle_model;
+			$vehicleModel = getStr($this->api->get('vehicle_model', $modelId)->data('idVehicle_model')->name);
+
 			$googleAPI = new Google_Client;
 			$googleAPI->setDeveloperKey(YOUTUBE_API_KEY);
 
