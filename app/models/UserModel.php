@@ -9,7 +9,6 @@ class UserModel extends Model{
 		return $this;
 	}
 
-	// Review this!
 	public function getAssignedVehicle($userId){
 		$bitacora = $this->api->get('bitacora')->data();
 
@@ -21,9 +20,6 @@ class UserModel extends Model{
 	}
 
 	public function showVideoRecommendations($userId, $resultsPageToken = null){
-		// Review this!
-		// if the user is assigned a heavy vehicle driver role
-		// get vehicles connected to driver => Bitacora -> Vehicle_model -> name
 		$userVehicle = $this->getAssignedVehicle($userId);
 
 		if($userVehicle !== null){

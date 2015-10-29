@@ -38,7 +38,7 @@
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-lg" id="visualize_log_data">Visualize data</button>
 			<?php if($this->get('addNotes') !== null): ?>
-			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" 
+			<button type="button" class="btn btn-default btn-lg" data-toggle="modal" 
 				data-target="#addNoteModal">Add note</button>
 			<?php endif; ?>
 		</div>

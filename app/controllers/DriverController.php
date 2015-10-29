@@ -20,8 +20,6 @@ class DriverController extends RoleController{
 	}
 
 	public function getGPSData(){
-		// Get log file for user assigned vehicle
-		// Get last log of type
 		$userVehicle = $this->userModel->getAssignedVehicle($this->userId);
 
 		if($userVehicle !== null){

@@ -12,12 +12,6 @@ class VehicleModel extends Model{
 	public function getVehicles(){
 		return $this->api->get('vehicle')->data('idvehicle');
 	}
-
-	// information about their usage (times, user assigned, fuel consumption, reported issues)
-	// get all vehicles + info
-	// Vehicle -> Logs -> Status_type, Manual_Issues? + more?
-	// $status = $this->api->get('status_type', $log->Sensor_Sensor_type_idSensor_type)->data('idStatus_type');
-	// $data['status'] = getStr($status->name);
 	
 	public function getVehicleInfo($modelId, $organizationId){
 		$model = $this->api->get('vehicle_model', $modelId)->data('idVehicle_model');
@@ -38,7 +32,7 @@ class VehicleModel extends Model{
 		$types = ['temp', 'speed', 'weight', 'gps', 'timer'];
 
 		foreach($sensors as $sensor){
-			if(getStr($sensor->Vehicle_idvehicle) === $vehicleId){ // Fix this wierd shit
+			if(getStr($sensor->Vehicle_idvehicle) === $vehicleId){
 				$sensorType = $this->api->get('sensor_type', getStr($sensor->Sensor_type_idSensor_type))->data('idSensor_type');
 				$name = getStr($sensorType->name);
 				
@@ -68,8 +62,7 @@ class VehicleModel extends Model{
 		$data = [];
 
 		foreach($usages as $usage){
-			// Would it work if there were more than one bitacorasas??
-			if(getStr($usage->Vehicle_idvehicle) === $vehicleId){ // Fix this wierd shit
+			if(getStr($usage->Vehicle_idvehicle) === $vehicleId){ 
 
 				// Get user
 				$user = $this->getVehicleUser(getStr($usage->User_idUser));

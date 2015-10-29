@@ -20,7 +20,6 @@ class DirectorController extends RoleController{
 		$this->view->render('home/stock');		
 	}
 
-	// Name?
 	public function getStockData(){
 		echo $this->userModel->getStock($_POST);
 	}	

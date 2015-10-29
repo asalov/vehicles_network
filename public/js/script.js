@@ -94,7 +94,6 @@ $(document).ready(function(){
 
 			$link.parent().addClass('data-retrieved');
 
-			// Show less option?
 			$link.hide();
 
 			$(document).ajaxStop(function(){
@@ -133,7 +132,6 @@ $(document).ready(function(){
 	$('#visualize_stock_data').click(function(){
 		$spinner.removeClass('hidden');
 
-		// Fix this repetition
 		var $optionsForm = $(this).parent().prev();
 		var $stockName = $optionsForm.find('#stock_name').val();
 		
@@ -223,7 +221,6 @@ $(document).ready(function(){
 		}, ajaxOptions);
 	}
 
-	// Add notes to log file
 	$('#addNoteModal').on('shown.bs.modal', function(){
  		$(this).find('textarea').focus();
 	});
@@ -277,42 +274,42 @@ $(document).ready(function(){
 	// Disable checkboxes by default
 	$('.sensors input[type=checkbox]:not(.temp)').attr('disabled', true);
 
-	$('#visualization_vectors').change(function(){
-		var $vector = $(this);
-		var $checkboxes = $vector.parent().next().find('.sensors').find('input[type=checkbox].temp');
-		var $selected = $vector.val();
+	// $('#visualization_vectors').change(function(){
+	// 	var $vector = $(this);
+	// 	var $checkboxes = $vector.parent().next().find('.sensors').find('input[type=checkbox].temp');
+	// 	var $selected = $vector.val();
 
-		// $checkboxes.attr('disabled', false);
-		// $checkboxes.prop('checked', false);
+	// 	$checkboxes.attr('disabled', false);
+	// 	$checkboxes.prop('checked', false);
 
-		// var $tempCheckbox = $checkboxes.filter('.temp');
-		// var $weightCheckbox = $checkboxes.filter('.weight');
-		// var $speedCheckbox = $checkboxes.filter('.speed');
+	// 	var $tempCheckbox = $checkboxes.filter('.temp');
+	// 	var $weightCheckbox = $checkboxes.filter('.weight');
+	// 	var $speedCheckbox = $checkboxes.filter('.speed');
 
-		// switch($selected){
-		// 	case 'weight-temp':
-		// 		$weightCheckbox.attr('disabled', true);
-		// 		$weightCheckbox.prop('checked', true);
-		// 		$speedCheckbox.attr('disabled', true);
-		// 	break;
-		// 	case 'weight-speed':
-		// 		$weightCheckbox.attr('disabled', true);
-		// 		$weightCheckbox.prop('checked', true);
-		// 		$speedCheckbox.attr('disabled', true);
-		// 		$speedCheckbox.prop('checked', true);
-		// 		$tempCheckbox.attr('disabled', true);
-		// 	break;
-		// 	case 'speed-temp':
-		// 		$weightCheckbox.attr('disabled', true);
-		// 		$speedCheckbox.attr('disabled', true);
-		// 		$speedCheckbox.prop('checked', true);
-		// 	break;
-		// 	default:
-		// 		$weightCheckbox.attr('disabled', true);
-		// 		$speedCheckbox.attr('disabled', true);
-		// 	break;
-		// }
-	});
+	// 	switch($selected){
+	// 		case 'weight-temp':
+	// 			$weightCheckbox.attr('disabled', true);
+	// 			$weightCheckbox.prop('checked', true);
+	// 			$speedCheckbox.attr('disabled', true);
+	// 		break;
+	// 		case 'weight-speed':
+	// 			$weightCheckbox.attr('disabled', true);
+	// 			$weightCheckbox.prop('checked', true);
+	// 			$speedCheckbox.attr('disabled', true);
+	// 			$speedCheckbox.prop('checked', true);
+	// 			$tempCheckbox.attr('disabled', true);
+	// 		break;
+	// 		case 'speed-temp':
+	// 			$weightCheckbox.attr('disabled', true);
+	// 			$speedCheckbox.attr('disabled', true);
+	// 			$speedCheckbox.prop('checked', true);
+	// 		break;
+	// 		default:
+	// 			$weightCheckbox.attr('disabled', true);
+	// 			$speedCheckbox.attr('disabled', true);
+	// 		break;
+	// 	}
+	// });
 
 	$('#visualize_log_data').click(function(e){
 		var $form = $(this).parents('form');
@@ -362,30 +359,31 @@ $(document).ready(function(){
 	});
 });
 
-function ajax(destination, callback, options){
-	var method = 'get';
-	var data = {};
-	var returnType = 'json';
+// Send an AJAX request
+function ajax(destination, callback, reqOptions){
+	var options = {
+		method: 'get',
+		data: {},
+		returnType: 'json'
+	};
+	var url = location.href;
+	var root = 'public/';
 
-	if(options !== undefined){
-		if(options.method !== undefined) method = options.method;
-		if(options.returnType !== undefined) returnType = options.returnType;
-		if(options.data !== undefined) data = options.data;
+	if(reqOptions !== undefined){
+		for(var x in reqOptions){
+			if(reqOptions.hasOwnProperty(x)) options[x] = reqOptions[x];
+		}
 	}
 
-	var url = location.href;
-
 	if(url[url.length - 1] === '/') url = url.substr(0, url.length - 1);
-
-	var root = 'public/';
 
 	url = url.substr(0, url.lastIndexOf(root) + root.length);
 	
 	$.ajax({
-		method: method,
+		method: options.method,
 		url: url + destination,
-		dataType: returnType,
-		data: data
+		dataType: options.returnType,
+		data: options.data
 	}).done(function(response){
 		callback(response);
 	});	
@@ -488,7 +486,6 @@ function showDrivePath(mapElement, sessionInfo){
 	});
 }
 
-// Change name?
 function addLine(labelTxt, data, element){
 	var el = (element !== undefined) ? element : 'p'; 
 	var $parent = $('<' + el + '/>');
@@ -496,11 +493,11 @@ function addLine(labelTxt, data, element){
 	var $label = $('<span>', { class: 'label-span', text: labelTxt + ' '});
 
 	$parent.append([$label, data]);
-	// $parent.append(data);
 
 	return $parent;
 }
 
+// Convert seconds to minutes and seconds (mm:ss)
 function secsToMins(time){
 	var mins = Math.floor(time / 60);
 	var seconds = time % 60;
@@ -517,7 +514,7 @@ function visualizeStockData(data){
 	var h = 600;
 	var margin = {
 		top: 20,
-		right: 100,
+		right: 140,
 		bottom:50,
 		left: 50
 	};
@@ -549,7 +546,7 @@ function visualizeStockData(data){
 							return d3.max(c.values, function(d){ return d.value; });
 						})
 					])
-					.range([h - (margin.bottom + margin.left), 10]);
+					.range([h - (margin.bottom + margin.left), margin.top + 10]);
 
 	var xAxis = d3.svg.axis()
 				  .scale(xScale)
@@ -560,7 +557,14 @@ function visualizeStockData(data){
 				  .orient('left')
 				  .ticks(7);
 
-	generateGraph(w, h, margin, { x: xScale, y: yScale}, { x: xAxis, y: yAxis}, keys, stockData);
+	var axis = {
+		x: xAxis,
+		xLabel: 'Date',
+		y: yAxis,
+		yLabel: 'Value'
+	};
+
+	generateGraph(w, h, margin, { x: xScale, y: yScale}, axis, keys, stockData);
 }
 
 function visualizeLogData(data){
@@ -625,7 +629,7 @@ function visualizeLogData(data){
 							return d3.max(c.values, function(d){ return d.value; });
 						})
 					])
-					.range([h - (margin.bottom + margin.left), 10]);
+					.range([h - (margin.bottom + margin.left), margin.top + 10]);
 
 	var xAxis = d3.svg.axis()
 				  .scale(xScale)
@@ -636,119 +640,17 @@ function visualizeLogData(data){
 				  .orient('left')
 				  .ticks(7);
 
-	generateGraph(w, h, margin, { x: xScale, y: yScale}, { x: xAxis, y: yAxis}, keys, logData);
+	var axis = {
+		x: xAxis,
+		xLabel: 'Date',
+		y: yAxis,
+		yLabel: 'Temp (C)'
+	};
 
-	// var svg = d3.select('.visualization')
-	// 			.append('svg')
-	// 			.attr('width', w)
-	// 			.attr('height', h);
-
-	// svg.append('g')
-	//    .attr('transform', 'translate(0, ' + (h - (margin.bottom + 48)) + ')')
-	//    .attr('class', 'axis')
-	//    .call(xAxis)
-	//    .selectAll('text')  
-	//    .style('text-anchor', 'end')
-	//    .attr('dx', '-.8em')
-	//    .attr('dy', '.15em')
-	//    .attr('transform', 'rotate(-65)' );
-
-	// svg.append('g')
-	//    .attr('transform', 'translate(' + margin.left + ', 0)')
-	//    .attr('class', 'axis')
-	//    .call(yAxis);
-
-	// var showLine = d3.svg.line()
-	// 				 .x(function(d){ return xScale(d.date); })
-	// 				 .y(function(d){ return yScale(d.value); });
-
-
-	// var lines = svg.selectAll('.line')
-	// 				.data(logData)
-	// 				.enter()
-	// 				.append('g')
-	// 				.attr('class', 'line')
-	// 				.attr('id', function(d){ return 'line' + d.name; })
-	// 				.on('click', function(d){
-	// 					d3.select(this).classed('hidden', true);
-
-	// 					var graphLegend = d3.select('.legend-item[data-graph=line-' + d.name.toLowerCase() + ']');
-	// 					graphLegend.selectAll('rect').classed('disabled', true);
-	// 					graphLegend.selectAll('text').classed('disabled', true);
-	// 				})
-	// 				.on('mouseover', function(){
-	// 					var line = d3.select(this).selectAll('path');
-
-	// 					line.attr('stroke-width', 6).transition().duration(1000);
-	// 				})
-	// 				.on('mouseout', function(){
-	// 					var line = d3.select(this).selectAll('path');
-
-	// 					line.attr('stroke-width', 4).transition().duration(1000);
-	// 				});					
-
-	// lines.append('path')
-	// 	 .attr('d', function(d){ return showLine(d.values); })
-	// 	 .attr('stroke', function(d){ return colors(d.name); })
-	// 	 .attr('stroke-width', 4)
-	// 	 .attr('fill', 'none'); 
-
-	// lines.selectAll('circle')
-	// 	 .data(function(d){ return d.values; })
-	// 	 .enter()
-	// 	 .append('circle')
-	// 	 .attr('cx', function(d){ return xScale(d.date); })
-	// 	 .attr('cy', function(d){ return yScale(d.value); })
-	// 	 .attr('r', 3)
-	// 	 .attr('stroke', function(d){ return colors(d.name); })
-	// 	 .attr('stroke-width', 2)
-	// 	 .attr('fill', '#fff');
-
-	// var legend = svg.append('g')
-	// 	  			.attr('class', 'legend');
-
-	// var legendItem = legend.selectAll('.legend-item')
-	// 						.data(keys)
-	// 						.enter()
-	// 						.append('g')
-	// 						.attr('class', 'legend-item')
-	// 						.attr('data-graph', function(d){ return 'line-' + d.toLowerCase(); })
-	// 			  			.on('click', function(d){
-	// 			  				var item = d3.select(this);
-	// 			  				var id = '#line' + d;
-	// 							var hidden = !d3.select(id).classed('hidden');
-
-	// 							d3.select(id).classed('hidden', hidden);
-	// 							item.selectAll('rect').classed('disabled', hidden);
-	// 							item.selectAll('text').classed('disabled', hidden);
-	// 			  			});
-
-	// legendItem.append('rect')
-	// 		  .attr('x', w - 260)
-	// 		  .attr('y', function(d, i){ return 15 + (i * 30); })
-	// 		  .attr('width', 15)
-	// 		  .attr('height', 15)
-	// 		  .style('fill', function(d){ return colors(d); });
-
-	// legendItem.append('text')
-	// 		  .attr('x', w - 240)
-	// 		  .attr('y', function(d, i){ return 27 + (i * 30); })
-	// 		  .attr('width', 100)
-	// 		  .attr('height', 30)
-	// 		  .style('fill', function(d){return colors(d); })
-	// 		  .text(function(d){ return d; });
-
-	// lines.selectAll('path')
-	// 	 .attr('stroke-dasharray', function(){
-	// 		var length = d3.select(this).node().getTotalLength();
-	// 		return length + ' ' + length;  
-	// 	})
-	// 	 .attr('stroke-dashoffset', function(){ return d3.select(this).node().getTotalLength(); })
-	// 	 .transition()
-	// 	 .duration(2000)
-	// 	 .attr('stroke-dashoffset', 0);
+	generateGraph(w, h, margin, { x: xScale, y: yScale}, axis, keys, logData);
 }
 
+// Draw SVG graph
 function generateGraph(w, h, margin, scales, axis, keys, data){
 	$('.visualization').empty();
 	$('.alert-info').remove();
@@ -771,10 +673,22 @@ function generateGraph(w, h, margin, scales, axis, keys, data){
 	   .attr('dy', '.15em')
 	   .attr('transform', 'rotate(-65)' );
 
+	// X axis label
+	svg.append('text')
+		.attr('transform', 'translate(' + (w - (margin.right + 20)) + ', ' + (h - (margin.bottom + 40)) + ')')
+        .style('text-anchor', 'end')
+        .text(axis.xLabel);
+
 	svg.append('g')
 	   .attr('transform', 'translate(' + margin.left + ', 0)')
 	   .attr('class', 'axis')
 	   .call(axis.y);
+
+	// Y axis label
+	svg.append('text')
+		.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+        .style('text-anchor', 'middle')
+        .text(axis.yLabel);	
 
 	var showLine = d3.svg.line()
 					 .x(function(d){ return scales.x(d.date); })
@@ -843,14 +757,14 @@ function generateGraph(w, h, margin, scales, axis, keys, data){
 
 	legendItem.append('rect')
 			  .attr('x', w - (margin.right + 25))
-			  .attr('y', function(d, i){ return 15 + (i * 30); })
+			  .attr('y', function(d, i){ return (margin.top + 15) + (i * 30); })
 			  .attr('width', 15)
 			  .attr('height', 15)
 			  .style('fill', function(d){ return colors(d); });
 
 	legendItem.append('text')
 			  .attr('x', w - margin.right)
-			  .attr('y', function(d, i){ return 27 + (i * 30); })
+			  .attr('y', function(d, i){ return (margin.top + 27) + (i * 30); })
 			  .attr('width', 100)
 			  .attr('height', 30)
 			  .style('fill', function(d){return colors(d); })

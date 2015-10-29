@@ -14,7 +14,6 @@ class AuthModel extends Model{
 	}
 
 	public function login($account){
-		// Why?!?!?
 		if(isset($_REQUEST['hauth_start']) || isset($_REQUEST['hauth_done'])) Hybrid_Endpoint::process();
 
 		$authAdapter = $this->service->authenticate($account);
@@ -27,7 +26,6 @@ class AuthModel extends Model{
 	public function logout(){
 		$this->user->logout();
 
-		// Working?
 		$this->service->logoutAllProviders();
 	}
 
@@ -43,13 +41,11 @@ class AuthModel extends Model{
 
 	public function getRole(){
 		$roleId = $this->user->get('role_id');
-
 		$q = $this->db->select('roles', 'name', ['id' => $roleId]);
 
 		return $q->first()->name;
 	}
 
-	// Different name?
 	public function checkPermissions($permission){
 		return $this->user->hasPermission($permission);
 	}

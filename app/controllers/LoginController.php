@@ -26,7 +26,6 @@ class LoginController extends Controller{
 
 				$this->view->render('login/index');
 			}
-
 		}catch(Exception $e){
 			$this->view->set('error', $e->getMessage());
 
@@ -40,7 +39,7 @@ class LoginController extends Controller{
 		redirect(PATH . 'login');
 	}
 
-	// Show privacy policy (needed to get email from Twitter)
+	// Show privacy policy (needed to get email permissions from Twitter)
 	public function privacy(){
 		$this->view->render('login/privacy');
 	}

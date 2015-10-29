@@ -4,10 +4,6 @@ class VehiclesAPI{
 	private $data;
 	private $hostUrl = 'http://4me302-ht15.host22.com/';
 
-	public function __construct(){
-
-	}
-
 	public function get($table, $id = ''){
 		$params = 'table=' . ucfirst(strtolower($table));
 

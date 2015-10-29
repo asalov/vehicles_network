@@ -18,8 +18,6 @@ class AnalystController extends RoleController{
 
 		if($this->authModel->checkPermissions('add_notes')) $this->view->set('addNotes', true);
 
-		// Show vehicle plate + model?
-
 		$this->view->set('vehicleId', $vehicleId);
 		$this->view->set('sensors', $this->vehicleModel->getSensorData($vehicleId));
 
@@ -28,10 +26,6 @@ class AnalystController extends RoleController{
 
 	public function getExtraInfo($modelId, $organizationId){
 		echo toJson($this->vehicleModel->getVehicleInfo($modelId, $organizationId));
-	}
-
-	public function getSensors($vehicleId){
-		echo toJson($this->vehicleModel->getSensorData($vehicleId));
 	}
 
 	public function getUsage($vehicleId){
